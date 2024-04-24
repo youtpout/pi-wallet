@@ -1,3 +1,7 @@
+# PI Wallet
+
+A private wallet built with noir on scroll
+
 # 🏗 Scaffold-ETH 2
 
 <h4 align="center">
