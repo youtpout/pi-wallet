@@ -29,11 +29,15 @@ fn main(
     ];
 
     let hash:Field = compute_merkle_root(oldAmount, 0, arrayToHash);
+
+    assert(leaf == hash);
+
     let hash_message:[u8;32]= field_to_bytes(hash);
 
     let key_x:[u8;32]= field_to_bytes(pub_key_x);
     let key_y:[u8;32]= field_to_bytes(pub_key_y);
 
+    // the user only need to sign with is private key to generate merkle leaf
     let valid_signature = std::ecdsa_secp256k1::verify_signature(key_x, key_y, signature, hash_message);
     assert(valid_signature);
 
