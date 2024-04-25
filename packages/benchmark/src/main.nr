@@ -8,7 +8,7 @@ fn main(x: [u8; 32], algo: Field) -> pub [u8; 32] {
     //     arr[i] = x[i];
     //     arr[i+32]=y[i];
     // }
-
+    let hash_path :[[u8;32];32]= [x; 32];
     if (algo == 1) {
         for index in 0..32 {
             arr = std::hash::sha256(x);
@@ -30,10 +30,7 @@ fn main(x: [u8; 32], algo: Field) -> pub [u8; 32] {
             arr[index] = 0;
         }
     } else if algo == 4 {
-        for index in 0..32 {
-            arr = std::hash::keccak256(x,32);
-            arr[index] = 0;
-        }
+        arr = compute_merkle_root(x, 16, hash_path);
     }
 
     arr
