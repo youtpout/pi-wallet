@@ -8,8 +8,8 @@ fn main(
     pub_key_y: [u8; 32],
     oldAmount: [u8; 32],
     witnesses: [[u8; 32]; 32],
-    leafIndex: [u8; 32],
-    actionIndex: [u8; 32],
+    leafIndex: Field,
+    actionIndex: Field,
     unique: pub [u8; 32],
     token: pub [u8; 20],
     leaf: pub [u8; 32],
@@ -23,10 +23,13 @@ fn main(
     isDeposit: pub [u8; 1],
     call: pub [u8; 256]
 ) {
+    // must be an action index > 0
+    assert(actionIndex != 0);
+
     let mut array_concat:([u8;512],[u8;96]) = concat_data(
         pub_key_x,
         pub_key_y,
-        actionIndex,
+        field_to_bytes(actionIndex),
         token,
         amount,
         amountRelayer,
@@ -48,6 +51,12 @@ fn main(
     // the user only need to sign with is private key to generate merkle leaf
     let valid_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, signature, hash_message);
     assert(valid_signature);
+
+    if (actionIndex == 1) {
+        // the first deposit don't need to prove old actions
+        let computed_root = compute_merkle_root(leaf, leafIndex, witnesses);
+        assert(computed_root == merkleRoot);
+    }
 
     if isDeposit == [1] {} else {}
 }
@@ -90,8 +99,8 @@ fn withdraw(
     call: pub [u8; 256]
 ) {}
 
-// update of noir implementation to use poseidon
-fn compute_merkle_root<N>(leaf: Field, index: Field, hash_path: [Field; N]) -> Field {
+// update of noir implementation to use sha (best ratio perf/gas for solidity)
+fn compute_merkle_root<N>(leaf: [u8; 32], index: Field, hash_path: [[u8; 32]; N]) -> [u8; 32] {
     let n = hash_path.len();
     let index_bits = index.to_le_bits(n as u32);
     let mut current = leaf;
@@ -102,7 +111,12 @@ fn compute_merkle_root<N>(leaf: Field, index: Field, hash_path: [Field; N]) -> F
         } else {
             (current, hash_path[i])
         };
-        current = std::hash::poseidon::bn254::hash_2([hash_left, hash_right]);
+        let mut arr:[u8;64]= [0; 64];
+        for i in 0..32 {
+            arr[i] = hash_left[i];
+            arr[i+32]=hash_right[i];
+        }
+        current = std::hash::sha256(arr);
         //std::println("current");
         //std::println(current);
     }
