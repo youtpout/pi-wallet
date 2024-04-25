@@ -3845,6 +3845,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"benchmark@workspace:packages/benchmark":
+  version: 0.0.0-use.local
+  resolution: "benchmark@workspace:packages/benchmark"
+  languageName: unknown
+  linkType: soft
+
 "big.js@npm:^5.2.2":
   version: 5.2.2
   resolution: "big.js@npm:5.2.2"

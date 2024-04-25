@@ -53,37 +53,41 @@ fn main(
 }
 
 fn deposit(
-    publicKey: Field,
-    token: Field,
-    oldAmount: Field,
-    leaf: Field,
-    leafIndex: Field,
-    actionIndex: Field,
-    witnesses: [Field; 32],
-    merkleRoot: Field,
-    nullifier: Field,
-    amount: Field,
-    amountRelayer: pub Field,
-    receiver: pub Field,
-    relayer: pub Field,
-    call: pub [Field; 32]
+    oldAmount: [u8; 32],
+    witnesses: [[u8; 32]; 32],
+    leafIndex: [u8; 32],
+    actionIndex: [u8; 32],
+    unique: pub [u8; 32],
+    token: pub [u8; 20],
+    leaf: pub [u8; 32],
+    merkleRoot: pub [u8; 32],
+    // nullifier hash publicKey Index ?
+    nullifier: pub [u8; 32],
+    amount: pub [u8; 32],
+    amountRelayer: pub [u8; 32],
+    receiver: pub [u8; 20],
+    relayer: pub [u8; 20],
+    isDeposit: pub [u8; 1],
+    call: pub [u8; 256]
 ) {}
 
 fn withdraw(
-    publicKey: Field,
-    token: Field,
-    oldAmount: Field,
-    leaf: Field,
-    leafIndex: Field,
-    actionIndex: Field,
-    witnesses: [Field; 32],
-    merkleRoot: Field,
-    nullifier: Field,
-    amount: Field,
-    amountRelayer: pub Field,
-    receiver: pub Field,
-    relayer: pub Field,
-    call: pub [Field; 32]
+    oldAmount: [u8; 32],
+    witnesses: [[u8; 32]; 32],
+    leafIndex: [u8; 32],
+    actionIndex: [u8; 32],
+    unique: pub [u8; 32],
+    token: pub [u8; 20],
+    leaf: pub [u8; 32],
+    merkleRoot: pub [u8; 32],
+    // nullifier hash publicKey Index ?
+    nullifier: pub [u8; 32],
+    amount: pub [u8; 32],
+    amountRelayer: pub [u8; 32],
+    receiver: pub [u8; 20],
+    relayer: pub [u8; 20],
+    isDeposit: pub [u8; 1],
+    call: pub [u8; 256]
 ) {}
 
 // update of noir implementation to use poseidon

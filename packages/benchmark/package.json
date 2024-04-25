@@ -1,0 +1,11 @@
+{
+  "name": "benchmark",
+  "packageManager": "yarn@3.2.3",
+  "scripts": {
+    "sha": "time nargo prove -p ProverSha.toml",
+    "keccak": "time nargo prove -p ProverKeccak.toml",
+    "blake2": "time nargo prove -p ProverBlake2.toml",
+    "blake3": "time nargo prove -p ProverBlake3.toml",
+    "bench": "yarn sha && yarn keccak && yarn blake2 && yarn blake3"
+  }
+}
