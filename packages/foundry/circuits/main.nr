@@ -6,7 +6,7 @@ fn main(
     signature: [u8; 64],
     pub_key_x: [u8; 32],
     pub_key_y: [u8; 32],
-    oldAmount: [u8; 32],
+    oldAmount: Field,
     witnesses: [[u8; 32]; 32],
     leafIndex: Field,
     actionIndex: Field,
@@ -16,7 +16,7 @@ fn main(
     merkleRoot: pub [u8; 32],
     // nullifier hash publicKey Index ?
     nullifier: pub [u8; 32],
-    amount: pub [u8; 32],
+    amount: pub Field,
     amountRelayer: pub [u8; 32],
     receiver: pub [u8; 20],
     relayer: pub [u8; 20],
@@ -25,13 +25,25 @@ fn main(
 ) {
     // must be an action index > 0
     assert(actionIndex != 0);
+    assert(amount != 0);
+
+    let mut newAmount= 0;
+    if isDeposit == [1] {
+        newAmount = oldAmount + amount;
+    } else {
+        let amountOut = U128::from_integer(amount);
+        let amountOld = U128::from_integer(oldAmount);
+        // can't withdraw more than balance
+        assert(amountOld >= amountOut);
+        newAmount = oldAmount - amount;
+    }
 
     let mut array_concat:([u8;512],[u8;96]) = concat_data(
         pub_key_x,
         pub_key_y,
         field_to_bytes(actionIndex),
         token,
-        amount,
+        field_to_bytes(newAmount),
         amountRelayer,
         receiver,
         relayer,
@@ -53,12 +65,12 @@ fn main(
     assert(valid_signature);
 
     if (actionIndex == 1) {
+        assert(oldAmount == 0);
+    } else {
         // the first deposit don't need to prove old actions
         let computed_root = compute_merkle_root(leaf, leafIndex, witnesses);
         assert(computed_root == merkleRoot);
     }
-
-    if isDeposit == [1] {} else {}
 }
 
 fn deposit(
