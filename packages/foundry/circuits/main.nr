@@ -18,8 +18,8 @@ fn main(
     nullifier: pub [u8; 32],
     amount: pub [u8; 32],
     amountRelayer: pub [u8; 32],
-    receiver: pub [u8; 32],
-    relayer: pub [u8; 32],
+    receiver: pub [u8; 20],
+    relayer: pub [u8; 20],
     isDeposit: pub [u8; 1],
     call: pub [u8; 256]
 ) {
@@ -121,8 +121,8 @@ fn concat_data(
     token: [u8; 20],
     amount: [u8; 32],
     amountRelayer: [u8; 32],
-    receiver: [u8; 32],
-    relayer: [u8; 32],
+    receiver: [u8; 20],
+    relayer: [u8; 20],
     isDeposit: [u8; 1],
     call: [u8; 256]
 ) -> ([u8; 512], [u8; 96]) {
@@ -132,9 +132,36 @@ fn concat_data(
     for i in 0..512 {
         if i < 32 {
             array_concat[i] = pub_key_x[i];
+            array_unique[i] = pub_key_x[i];
         } else if i < 64 {
             let index = i - 32;
             array_concat[i] = pub_key_y[index];
+            array_unique[i] = pub_key_y[index];
+        } else if i < 96 {
+            let index = i - 96;
+            array_concat[i] = actionIndex[index];
+            array_unique[i] = actionIndex[index];
+        } else if i < 116 {
+            let index = i - 116;
+            array_concat[i] = token[index];
+        } else if i < 148 {
+            let index = i - 148;
+            array_concat[i] = amount[index];
+        } else if i < 180 {
+            let index = i - 180;
+            array_concat[i] = amountRelayer[index];
+        } else if i < 212 {
+            let index = i - 212;
+            array_concat[i] = receiver[index];
+        } else if i < 232 {
+            let index = i - 232;
+            array_concat[i] = relayer[index];
+        } else if i < 252 {
+            let index = i - 252;
+            array_concat[i] = isDeposit[index];
+        } else if i < 477 {
+            let index = i - 477;
+            array_concat[i] = call[index];
         }
     }
     (array_concat, array_unique)

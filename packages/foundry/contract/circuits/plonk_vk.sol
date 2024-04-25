@@ -1,47 +1,47 @@
-// Verification Key Hash: 3350bf3e04c3b03b50eae5a3eb8100906716577503b5c78246e0ca130075b56b
+// Verification Key Hash: 75f064465cb9fef8501795952b91c4c2a34fa6b13fee935b7b6044b4524516b8
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2022 Aztec
 pragma solidity >=0.8.4;
 
 library UltraVerificationKey {
     function verificationKeyHash() internal pure returns(bytes32) {
-        return 0x3350bf3e04c3b03b50eae5a3eb8100906716577503b5c78246e0ca130075b56b;
+        return 0x75f064465cb9fef8501795952b91c4c2a34fa6b13fee935b7b6044b4524516b8;
     }
 
     function loadVerificationKey(uint256 _vk, uint256 _omegaInverseLoc) internal pure {
         assembly {
             mstore(add(_vk, 0x00), 0x0000000000000000000000000000000000000000000000000000000000010000) // vk.circuit_size
-            mstore(add(_vk, 0x20), 0x0000000000000000000000000000000000000000000000000000000000000215) // vk.num_inputs
+            mstore(add(_vk, 0x20), 0x00000000000000000000000000000000000000000000000000000000000001fd) // vk.num_inputs
             mstore(add(_vk, 0x40), 0x00eeb2cb5981ed45649abebde081dcff16c8601de4347e7dd1628ba2daac43b7) // vk.work_root
             mstore(add(_vk, 0x60), 0x30641e0e92bebef818268d663bcad6dbcfd6c0149170f6d7d350b1b1fa6c1001) // vk.domain_inverse
-            mstore(add(_vk, 0x80), 0x14e485312eea776a32599d84dbe5bfeb1f1909183c5aa49722f8db8b7d2fc2a1) // vk.Q1.x
-            mstore(add(_vk, 0xa0), 0x1c7d518e12aea63598466f327baf45b15a965e5aec524f210486b5abd0924fff) // vk.Q1.y
-            mstore(add(_vk, 0xc0), 0x2662b2731ae3fc3ccd410c0d0c75400c123a17111f303b4698341292780b3681) // vk.Q2.x
-            mstore(add(_vk, 0xe0), 0x2a1798c1a6cbe0f1c3a5b66e565ea2de530a2bb74f0165b1caa0e696b2a70f89) // vk.Q2.y
-            mstore(add(_vk, 0x100), 0x1ea649ef051d3e389abd88325d026172efe3cd909f6a4bab12283084443596ce) // vk.Q3.x
-            mstore(add(_vk, 0x120), 0x1568de1ce575d3662ef6050c29ac34f2e10bcfde244aede952364b0e96cd49be) // vk.Q3.y
-            mstore(add(_vk, 0x140), 0x2142d0b8f292a7a0db15c5d5d9a4f51b7aabc7d156b1f178e0802f2d0c1b2fb4) // vk.Q4.x
-            mstore(add(_vk, 0x160), 0x0311bba7929ec9044eb7dcba71664220698a1c691a1e482c6667444c812f76b4) // vk.Q4.y
-            mstore(add(_vk, 0x180), 0x0d4b527d2c9c2aa445668b736500f33938b1bed10dadee2d1c93f9d9e0af3b62) // vk.Q_M.x
-            mstore(add(_vk, 0x1a0), 0x0ecf794ffab83c6bce47bd82a90ccf95f6b073930bde62668be3157728ad36ef) // vk.Q_M.y
-            mstore(add(_vk, 0x1c0), 0x1de4c58d2996194b8dc51bdfb5039fe2bfbccb698231214b8a6b1259c8c122af) // vk.Q_C.x
-            mstore(add(_vk, 0x1e0), 0x0c8bba5e35f75b19b6bc9e0b4ef3bd9c9e8bb91597f4035c314c67d09a825ad7) // vk.Q_C.y
-            mstore(add(_vk, 0x200), 0x29822714adeb2f3bb4f6944302a6ad3c26064620394cad1742f0c21be7b3b23d) // vk.Q_ARITHMETIC.x
-            mstore(add(_vk, 0x220), 0x232e1aaddcf4aac1eecba6880b6c7025dc7615fc7dd956b43a4b23b4a95fb8df) // vk.Q_ARITHMETIC.y
-            mstore(add(_vk, 0x240), 0x09076387c0514a63a540023e494086bbcc1f105a00f67f4d0f58f0e5f3c8a2af) // vk.QSORT.x
-            mstore(add(_vk, 0x260), 0x018ddacd43bc3d36af0f4575d6bc131b181ef95e7de95b3e2fadbb1615fb64fd) // vk.QSORT.y
+            mstore(add(_vk, 0x80), 0x0aac9fe3686ae0b53625d8c5016cc6c0e037f1ba3f0004e93411140d5d982663) // vk.Q1.x
+            mstore(add(_vk, 0xa0), 0x0345d1f709f8490e3e7c2f7fe02d71d61053115e2e711a23dfd17680ca6ed367) // vk.Q1.y
+            mstore(add(_vk, 0xc0), 0x1c7469343f937356e4384edde8f6a77546b40160422a98fcc1eea038f9468b00) // vk.Q2.x
+            mstore(add(_vk, 0xe0), 0x1b7d2bf7023449487f7419375d3b9cdd6563c348a10a65775827e7058787f808) // vk.Q2.y
+            mstore(add(_vk, 0x100), 0x1d3f3df12c39f6efb4ded970e6498ca80cc9ae2ed26aa6c0f4782da51c0564a0) // vk.Q3.x
+            mstore(add(_vk, 0x120), 0x20970334b404b685d22d54eba54c6e9c9bdb995ee119bbdd4a1254c4e31b803c) // vk.Q3.y
+            mstore(add(_vk, 0x140), 0x1ac3d856075ff1c1cba437e1b91b3a61e9aff4a52d1ac1debdf399f48be68f4f) // vk.Q4.x
+            mstore(add(_vk, 0x160), 0x2e046afcf84864ca04fdd8c113f3413a3900ab7fcebb28e8c29553168aafd7b6) // vk.Q4.y
+            mstore(add(_vk, 0x180), 0x0ea4c0d3a53d1130c75f8c168f1a8f98fac5cd370e345c7df84c6e50b3b7d244) // vk.Q_M.x
+            mstore(add(_vk, 0x1a0), 0x024ed7609425b6fa0d6ade0ba0cc493ac6fbf9ac6a631d4c0c25771b96157909) // vk.Q_M.y
+            mstore(add(_vk, 0x1c0), 0x22d035a6519e8b4b2cb9fe0bd92e6a8722c85fc240c6fa6709cc43666a47538d) // vk.Q_C.x
+            mstore(add(_vk, 0x1e0), 0x189e9805faf2da15b80e99cbf4ae4184c333d3854bd40c3e4217b6703feaf32f) // vk.Q_C.y
+            mstore(add(_vk, 0x200), 0x148236a96cf3e23f41de5a97f31a81a5384073d07ba42df5bd2b505cc3768720) // vk.Q_ARITHMETIC.x
+            mstore(add(_vk, 0x220), 0x1cc0de910eeda00ba8af138fa114bc357a739bf746cdcfce6649bd0b071bbb69) // vk.Q_ARITHMETIC.y
+            mstore(add(_vk, 0x240), 0x1188f77f163f58b520713f7c2324916489bdb4a5c450115dedfbab017706f8c8) // vk.QSORT.x
+            mstore(add(_vk, 0x260), 0x1be3e64a49dd90ebfecaadab3ac901f673c045f71840d39e31fe22a9af8fb4eb) // vk.QSORT.y
             mstore(add(_vk, 0x280), 0x21245d6c0a4d2ff12b21a825f39f30e8f8cf9b259448d111183e975828539576) // vk.Q_ELLIPTIC.x
             mstore(add(_vk, 0x2a0), 0x16a409532c8a1693536e93b6ce9920bfc2e6796e8dfe404675a0cdf6ee77ee7a) // vk.Q_ELLIPTIC.y
-            mstore(add(_vk, 0x2c0), 0x156bbb3d481fe82ee0da1b52b3a4bbbf235cbf679eb8517111133529cb3858c4) // vk.Q_AUX.x
-            mstore(add(_vk, 0x2e0), 0x164c2fc444708d992bbad4ce7d17ba874058cdce2a3ea45b79dff320c40f77ac) // vk.Q_AUX.y
-            mstore(add(_vk, 0x300), 0x256bb60cff2e60585b0190fc53dc8c74e02781f9d3c14123ad93189987b2eb54) // vk.SIGMA1.x
-            mstore(add(_vk, 0x320), 0x24a33593653518684753617ac57f72add6c51a42b6ffd40769aa9d60c6a8ec7d) // vk.SIGMA1.y
-            mstore(add(_vk, 0x340), 0x1e8a1150900804248a7a48e8ae0033eaa9703f2d4d387103a532a04dc4ef6c69) // vk.SIGMA2.x
-            mstore(add(_vk, 0x360), 0x2f5ec9fe50409d2324c3084381ead7a4eb06195143da55de2f4f8331924d548a) // vk.SIGMA2.y
-            mstore(add(_vk, 0x380), 0x198e5253eb3a5e018106990b7d6b9d9956eb988fd9865c1df6aa07430bc6941f) // vk.SIGMA3.x
-            mstore(add(_vk, 0x3a0), 0x18efa665455275aedfd2597a15cf3bcf45a1b22692e5b49bcf052d5416878177) // vk.SIGMA3.y
-            mstore(add(_vk, 0x3c0), 0x0f5eb74327b02b4daf3d7b1c2964ba789b8a4325ce000274012af94f82e4aaf6) // vk.SIGMA4.x
-            mstore(add(_vk, 0x3e0), 0x28ea05d8772ad9731f7d8aa7bf5d07233d34b71972b1257cb72995eb6a352eb5) // vk.SIGMA4.y
+            mstore(add(_vk, 0x2c0), 0x11ab14926e69da93e55a6427bc4404c4c44fe7bfa84234f315505f0db962f14b) // vk.Q_AUX.x
+            mstore(add(_vk, 0x2e0), 0x12abe64f346b5aa3dff759dfb153c85823bbd215b5e24579b3d7a43de0828ede) // vk.Q_AUX.y
+            mstore(add(_vk, 0x300), 0x2b0287faeb96b4531ecac017d627b4981720c8785cd1c3172f966ad78cd53209) // vk.SIGMA1.x
+            mstore(add(_vk, 0x320), 0x034ecd20308817800516cd1684915a72d4dcc4dc8e032331b235eb24fbe0fd01) // vk.SIGMA1.y
+            mstore(add(_vk, 0x340), 0x07709e63082d4b38cfe49f38b5237ee18bf771ff25ca91a911443a89ebadfcb0) // vk.SIGMA2.x
+            mstore(add(_vk, 0x360), 0x06910742393189f63f0bae4b9dc3011aa8ef57b10ad14b5192de347c6453206b) // vk.SIGMA2.y
+            mstore(add(_vk, 0x380), 0x1f7dfe46f4c45966fda0013601a40d84de1fbb68628fefeefb5057bbca322720) // vk.SIGMA3.x
+            mstore(add(_vk, 0x3a0), 0x2a53007dab3e02366d442376ed78f92ae7b935bd4eda778ac6d7805094677697) // vk.SIGMA3.y
+            mstore(add(_vk, 0x3c0), 0x29a50ae40dd548e4a25dfee6a0ac11caf936417e09ecdb7436daa191b40a99be) // vk.SIGMA4.x
+            mstore(add(_vk, 0x3e0), 0x16f6aacc1d60ba8e11389f0a03fe5dd5d904334e9e6e466151ff35809f34856e) // vk.SIGMA4.y
             mstore(add(_vk, 0x400), 0x2d7b48cbc49369ed1cde65148e2498e140f966468dcef75af4d67f31816afd18) // vk.TABLE1.x
             mstore(add(_vk, 0x420), 0x135f08c76c4ed7d4e8a393191e74ba47656da1bb0896597cc1a6448fed2b7c1d) // vk.TABLE1.y
             mstore(add(_vk, 0x440), 0x1b2b5303108f39b1b60de7e5bba14d680d749e5a47b1b8da408e43e6b1526c53) // vk.TABLE2.x
@@ -50,16 +50,16 @@ library UltraVerificationKey {
             mstore(add(_vk, 0x4a0), 0x0995b2fd14ae0cbc20dfab371a2f40f7e7d5f7849e9039779a46a68256fe590f) // vk.TABLE3.y
             mstore(add(_vk, 0x4c0), 0x2e3f9578be253b84d848ebadc3b0e6fd02f975095eb7a1f79c18d1f396d60585) // vk.TABLE4.x
             mstore(add(_vk, 0x4e0), 0x10d59ba05b111138f930f6d2dd0ec2fa7650060f43263bc280ffda41f4ba66aa) // vk.TABLE4.y
-            mstore(add(_vk, 0x500), 0x1a1e6cd3b9e4f6a9b79016b19678ef5ee02292dd5d9febc4e33ba85dc429a4a4) // vk.TABLE_TYPE.x
-            mstore(add(_vk, 0x520), 0x150c9c7c84860d551766955f5ba16b56ef5a0390e84bae5b34f9c3fd3525ed68) // vk.TABLE_TYPE.y
-            mstore(add(_vk, 0x540), 0x1c807282907869c13eecbf57b78b28fd9e6673788dd0afa1636d785136481afa) // vk.ID1.x
-            mstore(add(_vk, 0x560), 0x172723edbf33d600b40e8da60f549e2f7e69a89ce76d692570e6408cd03ddfe8) // vk.ID1.y
-            mstore(add(_vk, 0x580), 0x1f07fdd1e07a2f822ed07eba48e19360ecdcd09090e3cca4066b68ac88df8674) // vk.ID2.x
-            mstore(add(_vk, 0x5a0), 0x2b63556baf3b7f4ca3118bdfbb98bbdd99c12a9f307556a6f2ebf2ebfdfbfcc2) // vk.ID2.y
-            mstore(add(_vk, 0x5c0), 0x2ea48d7f9c8f2ce50a94acb1c9a5fcb68b48772c6713025c4d0575615b983a62) // vk.ID3.x
-            mstore(add(_vk, 0x5e0), 0x1e4c35680e60572f1c8f8a9a4ab1004b3b4efe9eb22fbd9e66de760240b8d843) // vk.ID3.y
-            mstore(add(_vk, 0x600), 0x093d4a931071b763100b7441cc9c81f4e7489bcaf7603efd752e2e8c7dfd8f98) // vk.ID4.x
-            mstore(add(_vk, 0x620), 0x21e3d11a178617382bd99cd9c627930a28aa33c984000d0eec57343ecda93c47) // vk.ID4.y
+            mstore(add(_vk, 0x500), 0x11e42a4c3aa556929018b8ef7341a575a333300898b1515c7ad196949849eca0) // vk.TABLE_TYPE.x
+            mstore(add(_vk, 0x520), 0x18956ddcb1420179afc557cc8724aceb9652e29d22ef8a5ace83a2d26f0c1caa) // vk.TABLE_TYPE.y
+            mstore(add(_vk, 0x540), 0x29ed76f048a6f33399187982911e1f4d7032427df229ef968ae265095f22fbc7) // vk.ID1.x
+            mstore(add(_vk, 0x560), 0x077de92e2b1aa1f023013145689bb4923d7a7967e3dc30edcae334084d134e84) // vk.ID1.y
+            mstore(add(_vk, 0x580), 0x1e94d8e197fde899ee3e5a1ff601653d7e7e53944d6cc57226f8d25714ecc396) // vk.ID2.x
+            mstore(add(_vk, 0x5a0), 0x08541cd8d7d374c8475ee25976d2d905b6fe12dd800d91e163bc2ddc0f35d22a) // vk.ID2.y
+            mstore(add(_vk, 0x5c0), 0x00ea95343988bc1eacbf74822e2da47390f55a56f4d69257e4e4aece08a3246f) // vk.ID3.x
+            mstore(add(_vk, 0x5e0), 0x1595e216649367a1b150b13e0c954c8692125208f538d6e1967caaea1b2a2bca) // vk.ID3.y
+            mstore(add(_vk, 0x600), 0x210dfae3401cd6c1ab9dfb8aa356ea733e19fae900f4c8db17bd855745b73854) // vk.ID4.x
+            mstore(add(_vk, 0x620), 0x26e633d30b1796b73c29826ff877d5a4597b71f76bd786c306aefd2f4fdcce2f) // vk.ID4.y
             mstore(add(_vk, 0x640), 0x00) // vk.contains_recursive_proof
             mstore(add(_vk, 0x660), 0) // vk.recursive_proof_public_input_indices
             mstore(add(_vk, 0x680), 0x260e01b251f6f1c7e7ff4e580791dee8ea51d87a358e038b4efe30fac09383c1) // vk.g2_x.X.c1 
