@@ -1,47 +1,55 @@
 use dep::std;
+use dep::std::slice;
 
 fn main(
     // use signature to never reveal private key, usefull to use external service like sindri
     signature: [u8; 64],
-    pub_key_x: Field,
-    pub_key_y: Field,
-    oldAmount: Field,
-    witnesses: [Field; 32],
-    leafIndex: Field,
-    actionIndex: Field,
-    token: pub Field,
-    leaf: pub Field,
-    merkleRoot: pub Field,
+    pub_key_x: [u8; 32],
+    pub_key_y: [u8; 32],
+    oldAmount: [u8; 32],
+    witnesses: [[u8; 32]; 32],
+    leafIndex: [u8; 32],
+    actionIndex: [u8; 32],
+    unique: pub [u8; 32],
+    token: pub [u8; 20],
+    leaf: pub [u8; 32],
+    merkleRoot: pub [u8; 32],
     // nullifier hash publicKey Index ?
-    nullifier: pub Field,
-    amount: pub Field,
-    amountRelayer: pub Field,
-    receiver: pub Field,
-    relayer: pub Field,
-    // call 20 to fit 32 size
-    call: pub [Field; 20],
-    isDeposit: pub Field
+    nullifier: pub [u8; 32],
+    amount: pub [u8; 32],
+    amountRelayer: pub [u8; 32],
+    receiver: pub [u8; 32],
+    relayer: pub [u8; 32],
+    isDeposit: pub [u8; 1],
+    call: pub [u8; 256]
 ) {
-    // array of size 32 to easy merkle root it, explicit enumerate call field to win time of prove
-    let arrayToHash: [Field;32] = [
-        pub_key_x, pub_key_y, oldAmount, leafIndex, actionIndex, token, leaf, amount, amountRelayer, receiver, relayer, isDeposit, call[0], call[1], call[2], call[3], call[4], call[5], call[6], call[7], call[8], call[9],
-        call[10], call[11], call[12], call[13], call[14], call[15], call[16], call[17], call[18], call[19]
-    ];
+    let mut array_concat:([u8;512],[u8;96]) = concat_data(
+        pub_key_x,
+        pub_key_y,
+        actionIndex,
+        token,
+        amount,
+        amountRelayer,
+        receiver,
+        relayer,
+        isDeposit,
+        call
+    );
 
-    let hash:Field = compute_merkle_root(oldAmount, 0, arrayToHash);
+    // use blake 3 to hash
+    let hash_message:[u8;32] = std::hash::blake3(array_concat.0);
 
-    assert(leaf == hash);
+    let hash_unique:[u8;32] = std::hash::blake3(array_concat.1);
 
-    let hash_message:[u8;32]= field_to_bytes(hash);
-
-    let key_x:[u8;32]= field_to_bytes(pub_key_x);
-    let key_y:[u8;32]= field_to_bytes(pub_key_y);
+    // check data match hash generated
+    assert(leaf == hash_message);
+    assert(unique == hash_unique);
 
     // the user only need to sign with is private key to generate merkle leaf
-    let valid_signature = std::ecdsa_secp256k1::verify_signature(key_x, key_y, signature, hash_message);
+    let valid_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, signature, hash_message);
     assert(valid_signature);
 
-    if isDeposit == 1 {} else {}
+    if isDeposit == [1] {} else {}
 }
 
 fn deposit(
@@ -105,3 +113,30 @@ fn field_to_bytes(input: Field) -> [u8; 32] {
     }
     result
 }
+
+fn concat_data(
+    pub_key_x: [u8; 32],
+    pub_key_y: [u8; 32],
+    actionIndex: [u8; 32],
+    token: [u8; 20],
+    amount: [u8; 32],
+    amountRelayer: [u8; 32],
+    receiver: [u8; 32],
+    relayer: [u8; 32],
+    isDeposit: [u8; 1],
+    call: [u8; 256]
+) -> ([u8; 512], [u8; 96]) {
+    let mut array_concat:[u8;512] = [0; 512];
+    let mut array_unique:[u8;96]= [0; 96];
+
+    for i in 0..512 {
+        if i < 32 {
+            array_concat[i] = pub_key_x[i];
+        } else if i < 64 {
+            let index = i - 32;
+            array_concat[i] = pub_key_y[index];
+        }
+    }
+    (array_concat, array_unique)
+}
+

@@ -4,12 +4,14 @@ pragma solidity ^0.8.24;
 interface IWalletManager {
     function deposit(
         bytes32 _commitment,
+        bytes32 _unique,
         address _relayer,
         uint256 _amountRelayer,
         bytes calldata _proof
     ) external payable;
     function depositErc20(
         bytes32 _commitment,
+        bytes32 _unique,
         address _token,
         address _relayer,
         uint256 _amount,
@@ -20,6 +22,7 @@ interface IWalletManager {
         bytes32 _nullifierHash,
         // the new leaf added not the old one executed
         bytes32 _commitment,
+        bytes32 _unique,
         bytes32 _root,
         address _token,
         address _receiver,
