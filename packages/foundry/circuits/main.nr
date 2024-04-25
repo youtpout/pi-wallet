@@ -12,10 +12,9 @@ fn main(
     actionIndex: Field,
     unique: pub [u8; 32],
     token: pub [u8; 20],
-    leaf: pub [u8; 32],
+    // new leaf act as nullifer
+    new_leaf: pub [u8; 32],
     merkleRoot: pub [u8; 32],
-    // nullifier hash publicKey Index ?
-    nullifier: pub [u8; 32],
     amount: pub Field,
     amountRelayer: pub [u8; 32],
     receiver: pub [u8; 20],
@@ -57,7 +56,7 @@ fn main(
     let hash_unique:[u8;32] = std::hash::blake3(array_concat.1);
 
     // check data match hash generated
-    assert(leaf == hash_message);
+    assert(new_leaf == hash_message);
     assert(unique == hash_unique);
 
     // the user only need to sign with is private key to generate merkle leaf
@@ -65,10 +64,28 @@ fn main(
     assert(valid_signature);
 
     if (actionIndex == 1) {
+        // if first action so the previous balance is zero
         assert(oldAmount == 0);
     } else {
+        let oldAction = actionIndex - 1;
+        let mut old_leaf:([u8;512],[u8;96]) = concat_data(
+            pub_key_x,
+            pub_key_y,
+            field_to_bytes(oldAction),
+            token,
+            field_to_bytes(oldAmount),
+            amountRelayer,
+            receiver,
+            relayer,
+            isDeposit,
+            call
+        );
+
+        // use blake 3 to hash
+        let old_leaf:[u8;32] = std::hash::blake3(array_concat.0);
+
         // the first deposit don't need to prove old actions
-        let computed_root = compute_merkle_root(leaf, leafIndex, witnesses);
+        let computed_root = compute_merkle_root(old_leaf, leafIndex, witnesses);
         assert(computed_root == merkleRoot);
     }
 }
