@@ -10,6 +10,7 @@ fn main(
     witnesses: [[u8; 32]; 32],
     leafIndex: Field,
     actionIndex: Field,
+    // unique need to store stoken, action by token
     unique: pub [u8; 32],
     token: pub [u8; 20],
     // new leaf act as nullifer
@@ -89,44 +90,6 @@ fn main(
         assert(computed_root == merkleRoot);
     }
 }
-
-fn deposit(
-    oldAmount: [u8; 32],
-    witnesses: [[u8; 32]; 32],
-    leafIndex: [u8; 32],
-    actionIndex: [u8; 32],
-    unique: pub [u8; 32],
-    token: pub [u8; 20],
-    leaf: pub [u8; 32],
-    merkleRoot: pub [u8; 32],
-    // nullifier hash publicKey Index ?
-    nullifier: pub [u8; 32],
-    amount: pub [u8; 32],
-    amountRelayer: pub [u8; 32],
-    receiver: pub [u8; 20],
-    relayer: pub [u8; 20],
-    isDeposit: pub [u8; 1],
-    call: pub [u8; 256]
-) {}
-
-fn withdraw(
-    oldAmount: [u8; 32],
-    witnesses: [[u8; 32]; 32],
-    leafIndex: [u8; 32],
-    actionIndex: [u8; 32],
-    unique: pub [u8; 32],
-    token: pub [u8; 20],
-    leaf: pub [u8; 32],
-    merkleRoot: pub [u8; 32],
-    // nullifier hash publicKey Index ?
-    nullifier: pub [u8; 32],
-    amount: pub [u8; 32],
-    amountRelayer: pub [u8; 32],
-    receiver: pub [u8; 20],
-    relayer: pub [u8; 20],
-    isDeposit: pub [u8; 1],
-    call: pub [u8; 256]
-) {}
 
 // update of noir implementation to use sha (best ratio perf/gas for solidity)
 fn compute_merkle_root<N>(leaf: [u8; 32], index: Field, hash_path: [[u8; 32]; N]) -> [u8; 32] {
