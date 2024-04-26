@@ -4,6 +4,7 @@ import { Noir } from '@noir-lang/noir_js';
 import circuit from '../noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
 
+// 0x14791697260E4c9A71f18484C9f997B308e59325 
 const privateKey = "0x0123456789012345678901234567890123456789012345678901234567890123";
 
 const wallet = new ethers.Wallet(privateKey);
@@ -38,7 +39,14 @@ const hash = blake3(Uint8Array.from(arrayToHash));
 console.log("hash", hash);
 
 const signature = await wallet.signMessage(hash);
-const split = ethers.Signature.from
+const signature2 = wallet.signingKey.sign(hash);
+
+console.log("signature", signature2);
+console.log("signature2", Array.from(ethers.getBytes(signature2.r)).concat(Array.from(ethers.getBytes(signature2.s))));
+
+const addr = ethers.recoverAddress(hash, signature);
+console.log("addr", addr);
+
 const arraySignature = Array.from(ethers.getBytes(signature));
 console.log("signature", arraySignature);
 arraySignature.shift();
