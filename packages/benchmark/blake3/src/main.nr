@@ -61,6 +61,23 @@ fn test_sign() {
     println(res);
 }
 
+#[test]
+fn test_field() {
+    let x = 1000;
+    let res = field_to_bytes(x);
+    println("field to bytes result");
+    println(res);
+}
+
+fn field_to_bytes(input: Field) -> [u8; 32] {
+    let input_to_bytes:[u8] = input.to_le_bytes(32);
+    let mut result :[u8;32] = [0; 32];
+    for i in 0..32 {
+        result[i] = input_to_bytes[i];
+    }
+    result
+}
+
 fn compute_merkle_root<N>(leaf: [u8; 32], index: Field, hash_path: [[u8; 32]; N]) -> [u8; 32] {
     let n = hash_path.len();
     let index_bits = index.to_le_bits(n as u32);

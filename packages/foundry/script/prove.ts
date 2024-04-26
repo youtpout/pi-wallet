@@ -29,49 +29,51 @@ const backend = new BarretenbergBackend(prover);
 const noir = new Noir(prover, backend);
 
 const amount = Array.from(numToUint8Array(1000));
+console.log("amount", amount);
 const token = Array.from(numToUint8Array(1));
 
+const index = Array(31).fill(0).concat(1);
 
-const arrayToHash = datax.concat(datay).concat(token).concat(amount);
+const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(amount);
+const unique_array = datax.concat(datay).concat(index).concat(amount);
 
 console.log("array to hash", arrayToHash);
 const hash = blake3(Uint8Array.from(arrayToHash));
+const unique_hash = blake3(Uint8Array.from(unique_array));
 console.log("hash", hash);
 
-const signature = await wallet.signMessage(hash);
-const signature2 = wallet.signingKey.sign(hash);
+const signature = wallet.signingKey.sign(hash);
+const bytes_sign = getBytesSign(signature);
+const new_leaf = blake3(Uint8Array.from(bytes_sign));
+console.log("signature", signature);
 
-console.log("signature", signature2);
-console.log("signature2", Array.from(ethers.getBytes(signature2.r)).concat(Array.from(ethers.getBytes(signature2.s))));
+const signature_unique = wallet.signingKey.sign(unique_hash);
+const bytes_sign_unique = getBytesSign(signature_unique);
+const unique = blake3(Uint8Array.from(bytes_sign_unique));
 
 const addr = ethers.recoverAddress(hash, signature);
 console.log("addr", addr);
 
-const arraySignature = Array.from(ethers.getBytes(signature));
-console.log("signature", arraySignature);
-arraySignature.shift();
-
-
 const input = {
-  signature: Array(64).fill(0),
-  signature_unique: Array(64).fill(0),
+  signature: bytes_sign,
+  signature_unique: bytes_sign_unique,
   old_signature: Array(64).fill(0),
   pub_key_x: Array.from(datax),
   pub_key_y: Array.from(datay),
   oldAmount: 0,
   witnesses: Array(32).fill(Array(32).fill(0)),
-  leafIndex: 7,
+  leafIndex: 0,
   actionIndex: 1,
   token: 1,
   // unique need to store stoken, action by token, to retrieve data from wallet
-  unique: Array(32).fill(0),
+  unique: Array.from(unique),
   // new leaf act as nullifer
-  new_leaf: Array(32).fill(0),
+  new_leaf: Array.from(new_leaf),
   merkleRoot: Array(32).fill(0),
   amount: 1000,
-  amountRelayer: 14,
+  amountRelayer: 0,
   receiver: 15,
-  relayer: 16,
+  relayer: 0,
   isDeposit: [1],
   // call can't exceed 2048 bytes
   call: Array(2048).fill(0)
@@ -95,4 +97,8 @@ function numToUint8Array(num) {
   }
 
   return arr;
+}
+
+function getBytesSign(signature: Signature) {
+  return Array.from(ethers.getBytes(signature.r)).concat(Array.from(ethers.getBytes(signature.s)));
 }
