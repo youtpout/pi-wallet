@@ -14,9 +14,13 @@ let pubKey = pubKey_uncompressed.slice(4);
 let pub_key_x = pubKey.substring(0, 64);
 console.log("public key x coordinate 📊: ", pub_key_x);
 let datax = Array.from(ethers.getBytes(ethers.zeroPadValue("0x" + pub_key_x, 32)));
+console.log("datax", datax);
+
 let pub_key_y = pubKey.substring(64);
 console.log("public key y coordinate 📊: ", pub_key_y);
 let datay = Array.from(ethers.getBytes(ethers.zeroPadValue("0x" + pub_key_y, 32)));
+console.log("datay", datay);
+
 
 
 const prover = circuit as unknown as CompiledCircuit;
@@ -32,6 +36,13 @@ const arrayToHash = datax.concat(datay).concat(token).concat(amount);
 console.log("array to hash", arrayToHash);
 const hash = blake3(Uint8Array.from(arrayToHash));
 console.log("hash", hash);
+
+const signature = await wallet.signMessage(hash);
+const split = ethers.Signature.from
+const arraySignature = Array.from(ethers.getBytes(signature));
+console.log("signature", arraySignature);
+arraySignature.shift();
+
 
 const input = {
   signature: Array(64).fill(0),
