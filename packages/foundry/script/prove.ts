@@ -1,15 +1,13 @@
 import { Signature, ethers, Wallet, BaseWallet, SigningKey, Contract } from "ethers";
 import { BarretenbergBackend } from '@noir-lang/backend_barretenberg';
 import { Noir } from '@noir-lang/noir_js';
-import circuit from '../target/circuits.json';
+import circuit from '../noir/target/circuits.json';
 
 
 const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
 
 const backend = new BarretenbergBackend(circuit);
 const noir = new Noir(circuit, backend);
-
-console.log("noir", noir);
 
 const input = { x: 1, y: 2 };
 
