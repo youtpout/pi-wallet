@@ -18,6 +18,7 @@
     "prove": "tsx script/prove.ts"
   },
   "dependencies": {
+    "@noble/hashes": "^1.4.0",
     "@noir-lang/backend_barretenberg": "^0.27.0",
     "@noir-lang/noir_js": "^0.27.0",
     "@noir-lang/noir_wasm": "^0.27.0",

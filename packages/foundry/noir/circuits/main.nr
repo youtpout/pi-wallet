@@ -1,5 +1,7 @@
 use dep::std;
 use dep::std::slice;
+use std::println;
+
 
 fn main(
     // use signature to never reveal private key, usefull to use external service like sindri
@@ -169,3 +171,18 @@ fn concat_data(
     (array_concat, array_unique)
 }
 
+#[test]
+fn test_hash() {
+    let x = [
+        102, 85, 254, 237, 77, 33, 76, 38, 30, 10, 107, 85,
+        67, 149, 89, 111, 31, 20, 118, 167, 125, 153, 149, 96,
+        229, 168, 223, 155, 138, 26, 53, 21, 33, 126, 136, 221,
+        5, 233, 56, 239, 221, 113, 178, 204, 227, 34, 191, 1,
+        218, 150, 205, 66, 8, 123, 35, 110, 143, 80, 67, 21,
+        122, 156, 6, 142, 1, 0, 0, 0, 0, 0, 0, 0,
+        232, 3, 0, 0, 0, 0, 0, 0
+    ];
+    let std::hash::blake3 = main(x);
+    println("hash result");
+    println(res);
+}
