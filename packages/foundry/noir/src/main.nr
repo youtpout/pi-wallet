@@ -51,7 +51,7 @@ fn main(
     // new amount can't be negative (can't withdraw more than balance)
     assert(amountAfter >= zero, "Amount can't be negative");
 
-    let mut array_concat:([u8;160],[u8;128]) = concat_data(
+    let array_concat:([u8;160],[u8;128]) = concat_data(
         pub_key_x,
         pub_key_y,
         field_to_bytes(actionIndex),
@@ -83,7 +83,7 @@ fn main(
         assert(oldAmount == 0);
     } else {
         let oldAction = actionIndex - 1;
-        let mut old_data:([u8;160],[u8;128]) = concat_data(
+        let old_array:([u8;160],[u8;128]) = concat_data(
             pub_key_x,
             pub_key_y,
             field_to_bytes(oldAction),
@@ -92,11 +92,9 @@ fn main(
         );
 
         // use blake 3 to hash
-        let old_data:[u8;32] = std::hash::blake3(array_concat.0);
-
-        let valid_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, old_signature, old_data);
-        assert(valid_signature);
-
+        let old_data:[u8;32] = std::hash::blake3(old_array.0);
+        let valid_old_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, old_signature, old_data);
+        assert(valid_old_signature);
         let old_leaf = std::hash::blake3(old_signature);
 
         let computed_root = compute_merkle_root(old_leaf, leafIndex, witnesses);
