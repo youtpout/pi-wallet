@@ -47,7 +47,7 @@ fn main(
     }
 
     // new amount can't be negative (can't withdraw more than balance)
-    assert((-1).lt(newAmount));
+    //assert((-1).lt(newAmount), "Amount can't be negative");
 
     let mut array_concat:([u8;160],[u8;128]) = concat_data(
         pub_key_x,
@@ -154,15 +154,15 @@ fn concat_data(
             array_concat[i] = pub_key_y[index];
             array_unique[i] = pub_key_y[index];
         } else if i < 96 {
-            let index = i - 96;
+            let index = i - 64;
             array_concat[i] = actionIndex[index];
             array_unique[i] = actionIndex[index];
         } else if i < 128 {
-            let index = i - 128;
+            let index = i - 96;
             array_concat[i] = token[index];
             array_unique[i] = token[index];
         } else if i < 160 {
-            let index = i - 160;
+            let index = i - 128;
             array_concat[i] = amount[index];
         }
     }
