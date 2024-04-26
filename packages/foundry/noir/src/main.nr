@@ -94,7 +94,7 @@ fn main(
         // use blake 3 to hash
         let old_data:[u8;32] = std::hash::blake3(old_array.0);
         let valid_old_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, old_signature, old_data);
-        assert(valid_old_signature);
+        assert(valid_old_signature, "Invalid old signature");
         let old_leaf = std::hash::blake3(old_signature);
 
         let computed_root = compute_merkle_root(old_leaf, leafIndex, witnesses);
