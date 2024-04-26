@@ -1,14 +1,13 @@
 import { Signature, ethers, Wallet, BaseWallet, SigningKey, Contract } from "ethers";
-import { BarretenbergBackend, CompiledCircuit } from '@noir-lang/backend_barretenberg';
+import { BarretenbergBackend } from '@noir-lang/backend_barretenberg';
 import { Noir } from '@noir-lang/noir_js';
-import circuit from '../noir/target/circuits.json';
-import { compile, createFileManager } from '@noir-lang/noir_wasm';
+import circuit from '../noir/target/circuits.json' with { type: "json" };
 import { blake3 } from '@noble/hashes/blake3';
 import { join, resolve } from 'path';
-
+import { compile, createFileManager } from '@noir-lang/noir_wasm';
 
 async function getCircuit() {
-  const basePath: any = resolve('noir');
+  const basePath = resolve('noir');
   const fm = createFileManager(basePath);
   const compiled = await compile(fm, basePath);
 
@@ -18,9 +17,10 @@ async function getCircuit() {
   return compiled.program;
 }
 
-const piCircuit: CompiledCircuit = await getCircuit();
+const piCircuit = await getCircuit();
 const backend = new BarretenbergBackend(piCircuit, { threads: 8 });
 const noir = new Noir(piCircuit, backend);
+
 
 // 0x14791697260E4c9A71f18484C9f997B308e59325 
 const privateKey = "0x0123456789012345678901234567890123456789012345678901234567890123";
@@ -104,10 +104,6 @@ const input = {
 
 try {
   console.log('logs', 'Generating proof... ⌛');
-  await noir.init();
-  await noir.execute(input);
-  console.log("executed");
-
   const proof = await noir.generateProof(input);
   console.log('logs', 'Generating proof... ✅');
   console.log('results', proof.proof);
@@ -131,6 +127,6 @@ function numToUint8Array(num) {
   return arr;
 }
 
-function getBytesSign(signature: Signature) {
+function getBytesSign(signature) {
   return Array.from(ethers.getBytes(signature.r)).concat(Array.from(ethers.getBytes(signature.s)));
 }
