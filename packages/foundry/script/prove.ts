@@ -54,13 +54,16 @@ const bytes_sign_unique = getBytesSign(signature_unique);
 const unique = blake3(Uint8Array.from(bytes_sign_unique));
 console.log("signature_unique", bytes_sign_unique);
 
+console.log("new_leaf", Array.from(new_leaf));
+console.log("unique", Array.from(unique));
+
 console.log("old_signature", Array(64).fill(0));
 
 const addr = ethers.recoverAddress(hash, signature);
 console.log("addr", addr);
 
-console.dir(Array(32).fill(Array(32).fill(0)), { 'maxArrayLength': null });
-console.dir(Array(2048).fill(0), { 'maxArrayLength': null });
+//console.dir(Array(32).fill(Array(32).fill(0)), { 'maxArrayLength': null });
+//console.dir(Array(2048).fill(0), { 'maxArrayLength': null });
 
 const input = {
   signature: bytes_sign,

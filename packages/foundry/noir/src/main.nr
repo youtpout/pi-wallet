@@ -46,8 +46,10 @@ fn main(
         newAmount = oldAmount - amount - amountRelayer;
     }
 
+    let amountAfter = U128::from_integer(newAmount);
+    let zero = U128::from_integer(0);
     // new amount can't be negative (can't withdraw more than balance)
-    //assert((-1).lt(newAmount), "Amount can't be negative");
+    assert(amountAfter >= zero, "Amount can't be negative");
 
     let mut array_concat:([u8;160],[u8;128]) = concat_data(
         pub_key_x,
@@ -69,7 +71,7 @@ fn main(
 
     // we use hash_signature so it will be difficult to guess the hash if we don'r have the private key to sign
     let hash_signature = std::hash::blake3(signature);
-    let hash_signature_unique = std::hash::blake3(signature);
+    let hash_signature_unique = std::hash::blake3(signature_unique);
 
     // check new leaf match hash generated
     assert(new_leaf == hash_signature);
