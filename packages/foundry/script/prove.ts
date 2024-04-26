@@ -32,12 +32,14 @@ const amount = Array.from(numToUint8Array(1000));
 console.log("amount", amount);
 const token = Array.from(numToUint8Array(1));
 
-const index = Array(31).fill(0).concat(1);
+const index = Array.from(numToUint8Array(1));
+console.log("index", index);
 
 const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(amount);
 const unique_array = datax.concat(datay).concat(index).concat(amount);
 
 console.log("array to hash", arrayToHash);
+console.dir(arrayToHash, { 'maxArrayLength': null });
 const hash = blake3(Uint8Array.from(arrayToHash));
 const unique_hash = blake3(Uint8Array.from(unique_array));
 console.log("hash", hash);
@@ -45,11 +47,12 @@ console.log("hash", hash);
 const signature = wallet.signingKey.sign(hash);
 const bytes_sign = getBytesSign(signature);
 const new_leaf = blake3(Uint8Array.from(bytes_sign));
-console.log("signature", signature);
+console.log("signature", bytes_sign);
 
 const signature_unique = wallet.signingKey.sign(unique_hash);
 const bytes_sign_unique = getBytesSign(signature_unique);
 const unique = blake3(Uint8Array.from(bytes_sign_unique));
+console.log("signature", bytes_sign_unique);
 
 const addr = ethers.recoverAddress(hash, signature);
 console.log("addr", addr);
@@ -89,9 +92,9 @@ const verification = await noir.verifyProof(proof);
 if (verification) console.log('logs', 'Verifying proof... ✅');
 
 function numToUint8Array(num) {
-  let arr = new Uint8Array(8);
+  let arr = new Uint8Array(32);
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 32; i++) {
     arr[i] = num % 256;
     num = Math.floor(num / 256);
   }
