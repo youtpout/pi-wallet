@@ -2,7 +2,6 @@ use dep::std;
 use dep::std::slice;
 use std::println;
 
-
 fn main(
     // use signature to never reveal private key, usefull to use external service like sindri
     signature: [u8; 64],
@@ -182,7 +181,7 @@ fn test_hash() {
         122, 156, 6, 142, 1, 0, 0, 0, 0, 0, 0, 0,
         232, 3, 0, 0, 0, 0, 0, 0
     ];
-    let std::hash::blake3 = main(x);
+    let res = std::hash::blake3(x);
     println("hash result");
     println(res);
 }
