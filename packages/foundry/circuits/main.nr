@@ -4,88 +4,99 @@ use dep::std::slice;
 fn main(
     // use signature to never reveal private key, usefull to use external service like sindri
     signature: [u8; 64],
+    signature_unique: [u8; 64],
+    old_signature: [u8; 64],
     pub_key_x: [u8; 32],
     pub_key_y: [u8; 32],
     oldAmount: Field,
     witnesses: [[u8; 32]; 32],
     leafIndex: Field,
     actionIndex: Field,
-    // unique need to store stoken, action by token
+    token: pub Field,
+    // unique need to store stoken, action by token, to retrieve data from wallet
     unique: pub [u8; 32],
-    token: pub [u8; 20],
     // new leaf act as nullifer
     new_leaf: pub [u8; 32],
     merkleRoot: pub [u8; 32],
     amount: pub Field,
-    amountRelayer: pub [u8; 32],
-    receiver: pub [u8; 20],
-    relayer: pub [u8; 20],
+    amountRelayer: pub Field,
+    receiver: pub Field,
+    relayer: pub Field,
     isDeposit: pub [u8; 1],
-    call: pub [u8; 256]
+    // call can't exceed 2048 bytes
+    call: pub [u8; 2048]
 ) {
     // must be an action index > 0
     assert(actionIndex != 0);
     assert(amount != 0);
+    assert(receiver != 0);
+    if (relayer != 0) {
+        assert(amountRelayer != 0);
+    }
 
     let mut newAmount= 0;
     if isDeposit == [1] {
-        newAmount = oldAmount + amount;
+        let emptyCall :[u8; 2048] = [0; 2048];
+        // we can't make call on deposit
+        assert(emptyCall == call);
+        // deposit add amount and substract relayer part
+        newAmount = oldAmount + amount - amountRelayer;
     } else {
-        let amountOut = U128::from_integer(amount);
-        let amountOld = U128::from_integer(oldAmount);
-        // can't withdraw more than balance
-        assert(amountOld >= amountOut);
-        newAmount = oldAmount - amount;
+        // withdraw substract amount and  relayer part
+        newAmount = oldAmount - amount - amountRelayer;
     }
 
-    let mut array_concat:([u8;512],[u8;96]) = concat_data(
+    // new amount can't be negative (can't withdraw more than balance)
+    assert((-1).lt(newAmount));
+
+    let mut array_concat:([u8;160],[u8;128]) = concat_data(
         pub_key_x,
         pub_key_y,
         field_to_bytes(actionIndex),
-        token,
-        field_to_bytes(newAmount),
-        amountRelayer,
-        receiver,
-        relayer,
-        isDeposit,
-        call
+        field_to_bytes(token),
+        field_to_bytes(newAmount)
     );
 
     // use blake 3 to hash
     let hash_message:[u8;32] = std::hash::blake3(array_concat.0);
-
     let hash_unique:[u8;32] = std::hash::blake3(array_concat.1);
 
-    // check data match hash generated
-    assert(new_leaf == hash_message);
-    assert(unique == hash_unique);
-
-    // the user only need to sign with is private key to generate merkle leaf
+    // the user only need to sign with is private key to generate merkle leaf, so we never reveal private key
     let valid_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, signature, hash_message);
     assert(valid_signature);
+    let valid_signature_unique = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, signature_unique, hash_unique);
+    assert(valid_signature_unique);
+
+    // we use hash_signature so it will be difficult to guess the hash if we don'r have the private key to sign
+    let hash_signature = std::hash::blake3(signature);
+    let hash_signature_unique = std::hash::blake3(signature);
+
+    // check new leaf match hash generated
+    assert(new_leaf == hash_signature);
+    assert(unique == hash_signature_unique);
 
     if (actionIndex == 1) {
+        // the first deposit don't need to prove old actions
         // if first action so the previous balance is zero
         assert(oldAmount == 0);
     } else {
         let oldAction = actionIndex - 1;
-        let mut old_leaf:([u8;512],[u8;96]) = concat_data(
+        let mut old_data:([u8;160],[u8;128]) = concat_data(
             pub_key_x,
             pub_key_y,
             field_to_bytes(oldAction),
-            token,
-            field_to_bytes(oldAmount),
-            amountRelayer,
-            receiver,
-            relayer,
-            isDeposit,
-            call
+            field_to_bytes(token),
+            field_to_bytes(oldAmount)
         );
 
         // use blake 3 to hash
-        let old_leaf:[u8;32] = std::hash::blake3(array_concat.0);
+        let old_data:[u8;32] = std::hash::blake3(array_concat.0);
 
-        // the first deposit don't need to prove old actions
+        let valid_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, old_signature, old_data);
+        assert(valid_signature);
+
+        let old_leaf = std::hash::blake3(old_signature);
+
         let computed_root = compute_merkle_root(old_leaf, leafIndex, witnesses);
         assert(computed_root == merkleRoot);
     }
@@ -128,16 +139,11 @@ fn concat_data(
     pub_key_x: [u8; 32],
     pub_key_y: [u8; 32],
     actionIndex: [u8; 32],
-    token: [u8; 20],
-    amount: [u8; 32],
-    amountRelayer: [u8; 32],
-    receiver: [u8; 20],
-    relayer: [u8; 20],
-    isDeposit: [u8; 1],
-    call: [u8; 256]
-) -> ([u8; 512], [u8; 96]) {
-    let mut array_concat:[u8;512] = [0; 512];
-    let mut array_unique:[u8;96]= [0; 96];
+    token: [u8; 32],
+    amount: [u8; 32]
+) -> ([u8; 160], [u8; 128]) {
+    let mut array_concat:[u8;160] = [0; 160];
+    let mut array_unique:[u8;128]= [0; 128];
 
     for i in 0..512 {
         if i < 32 {
@@ -151,27 +157,13 @@ fn concat_data(
             let index = i - 96;
             array_concat[i] = actionIndex[index];
             array_unique[i] = actionIndex[index];
-        } else if i < 116 {
-            let index = i - 116;
+        } else if i < 128 {
+            let index = i - 128;
             array_concat[i] = token[index];
-        } else if i < 148 {
-            let index = i - 148;
+            array_unique[i] = token[index];
+        } else if i < 160 {
+            let index = i - 160;
             array_concat[i] = amount[index];
-        } else if i < 180 {
-            let index = i - 180;
-            array_concat[i] = amountRelayer[index];
-        } else if i < 212 {
-            let index = i - 212;
-            array_concat[i] = receiver[index];
-        } else if i < 232 {
-            let index = i - 232;
-            array_concat[i] = relayer[index];
-        } else if i < 252 {
-            let index = i - 252;
-            array_concat[i] = isDeposit[index];
-        } else if i < 477 {
-            let index = i - 477;
-            array_concat[i] = call[index];
         }
     }
     (array_concat, array_unique)
