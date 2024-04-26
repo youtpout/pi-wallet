@@ -23,8 +23,8 @@ fn main(
     receiver: pub Field,
     relayer: pub Field,
     isDeposit: pub [u8; 1],
-    // call can't exceed 2048 bytes
-    call: pub [u8; 2048]
+    // hash of call
+    call: pub [u8; 32]
 ) {
     // must be an action index > 0
     assert(actionIndex != 0);
@@ -36,7 +36,7 @@ fn main(
 
     let mut newAmount= 0;
     if isDeposit == [1] {
-        let emptyCall :[u8; 2048] = [0; 2048];
+        let emptyCall :[u8; 32] = [0; 32];
         // we can't make call on deposit
         assert(emptyCall == call);
         // deposit add amount and substract relayer part
