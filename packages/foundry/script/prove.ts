@@ -36,7 +36,7 @@ const index = Array.from(numToUint8Array(1));
 console.log("index", index);
 
 const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(amount);
-const unique_array = datax.concat(datay).concat(index).concat(amount);
+const unique_array = datax.concat(datay).concat(index).concat(token);
 
 console.log("array to hash", arrayToHash);
 console.dir(arrayToHash, { 'maxArrayLength': null });
@@ -82,14 +82,19 @@ const input = {
   call: Array(2048).fill(0)
 };
 
+try {
+  console.log('logs', 'Generating proof... ⌛');
+  const proof = await noir.generateProof(input);
+  console.log('logs', 'Generating proof... ✅');
+  console.log('results', proof.proof);
+  console.log('logs', 'Verifying proof... ⌛');
+  const verification = await noir.verifyProof(proof);
+  if (verification) console.log('logs', 'Verifying proof... ✅');
+} catch (error) {
+  console.error("error proof", error);
+}
 
-console.log('logs', 'Generating proof... ⌛');
-const proof = await noir.generateProof(input);
-console.log('logs', 'Generating proof... ✅');
-console.log('results', proof.proof);
-console.log('logs', 'Verifying proof... ⌛');
-const verification = await noir.verifyProof(proof);
-if (verification) console.log('logs', 'Verifying proof... ✅');
+
 
 function numToUint8Array(num) {
   let arr = new Uint8Array(32);

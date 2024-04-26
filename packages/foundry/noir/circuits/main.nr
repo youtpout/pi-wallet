@@ -28,8 +28,8 @@ fn main(
     call: pub [u8; 2048]
 ) {
     // must be an action index > 0
-    assert(actionIndex != 0);
-    assert(amount != 0);
+    assert(actionIndex != 0, "action index can't be 0");
+    assert(amount != 0, "amount can't be 0");
     assert(receiver != 0);
     if (relayer != 0) {
         assert(amountRelayer != 0);
