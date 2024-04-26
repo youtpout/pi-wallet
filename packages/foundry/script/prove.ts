@@ -68,7 +68,7 @@ console.log("addr", addr);
 const input = {
   signature: bytes_sign,
   signature_unique: bytes_sign_unique,
-  old_signature: Array(64).fill(0),
+  old_signature: bytes_sign_unique,
   pub_key_x: Array.from(datax),
   pub_key_y: Array.from(datay),
   oldAmount: 0,
@@ -87,7 +87,7 @@ const input = {
   relayer: 0,
   isDeposit: [1],
   // call can't exceed 2048 bytes
-  call: Array(2048).fill(0)
+  call: Array(32).fill(0)
 };
 
 try {
