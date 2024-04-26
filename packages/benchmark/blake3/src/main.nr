@@ -55,7 +55,7 @@ fn test_sign() {
         143, 80, 67, 21, 122, 156, 6, 142
     ];
     let res = std::hash::blake3(x);
-    let valid_signature = std::ecdsa_secp256r1::verify_signature(pub_key_x, pub_key_y, signature, res);
+    let valid_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, signature, res);
     assert(valid_signature);
     println("hash result");
     println(res);
