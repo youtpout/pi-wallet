@@ -18,10 +18,10 @@
     "prove": "tsx script/prove.ts"
   },
   "dependencies": {
-    "@noir-lang/backend_barretenberg": "^0.28.0",
-    "@noir-lang/noir_js": "^0.28.0",
-    "@noir-lang/noir_wasm": "^0.28.0",
-    "@noir-lang/types": "^0.28.0",
+    "@noir-lang/backend_barretenberg": "^0.27.0",
+    "@noir-lang/noir_js": "^0.27.0",
+    "@noir-lang/noir_wasm": "^0.27.0",
+    "@noir-lang/types": "^0.27.0",
     "dotenv": "~16.3.1",
     "envfile": "~6.18.0",
     "ethers": "^6.12.0",
