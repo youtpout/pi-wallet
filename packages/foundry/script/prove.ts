@@ -103,17 +103,18 @@ const input = {
 };
 
 try {
-  console.log('logs', 'Generating proof... ⌛');
-  await noir.init();
-  await noir.execute(input);
-  console.log("executed");
-
-  const proof = await noir.generateProof(input);
   console.log('logs', 'Generating proof... ✅');
+  console.time("prove");
+  const proof = await noir.generateProof(input);
+  console.timeEnd("prove");
   console.log('results', proof.proof);
   console.log('logs', 'Verifying proof... ⌛');
   const verification = await noir.verifyProof(proof);
-  if (verification) console.log('logs', 'Verifying proof... ✅');
+  if (verification) {
+    console.log('logs', 'Proof verified... ✅');
+  } else {
+    console.log('logs', 'Proof verification failed... 🟥');
+  }
 } catch (error) {
   console.error("error proof", error);
 }
