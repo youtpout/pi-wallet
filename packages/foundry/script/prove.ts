@@ -106,6 +106,9 @@ try {
 } catch (error) {
   console.error("error proof", error);
 }
+finally {
+  process.exit();
+}
 
 
 
