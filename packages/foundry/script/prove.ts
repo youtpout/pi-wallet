@@ -7,7 +7,7 @@ import { blake3 } from '@noble/hashes/blake3';
 import { join, resolve } from 'path';
 
 
-const backend = new BarretenbergBackend(circuit);
+const backend = new BarretenbergBackend(circuit, { threads: 32 });
 const noir = new Noir(circuit, backend);
 
 // 0x14791697260E4c9A71f18484C9f997B308e59325 
