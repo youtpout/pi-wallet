@@ -83,23 +83,23 @@ const input = {
   old_signature: bytes_sign_unique,
   pub_key_x: Array.from(datax),
   pub_key_y: Array.from(datay),
-  oldAmount: 0,
+  old_amount: 0,
   // size 16 bigger 
   witnesses: Array(16).fill(Array(32).fill(0)),
-  leafIndex: 0,
-  actionIndex: 1,
+  leaf_index: 0,
+  action_index: 1,
   token: 1,
   // unique need to store stoken, action by token, to retrieve data from wallet
   unique: Array.from(unique),
   // new leaf act as nullifer
   new_leaf: Array.from(new_leaf),
-  merkleRoot: Array(32).fill(0),
+  merkle_root: Array(32).fill(0),
   amount: 1000,
-  amountRelayer: 0,
+  amount_relayer: 0,
   receiver: 15,
   relayer: 0,
-  isDeposit: [1],
-  // call can't exceed 2048 bytes
+  is_deposit: [1],
+  // call is a sha256 hash of calldata
   call: Array(32).fill(0)
 };
 
