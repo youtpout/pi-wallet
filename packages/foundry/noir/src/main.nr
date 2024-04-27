@@ -9,7 +9,7 @@ fn main(
     pub_key_x: [u8; 32],
     pub_key_y: [u8; 32],
     old_amount: Field,
-      // size 16, bigger array failed to prove in js 
+    // size 16, bigger array failed to prove in js
     witnesses: [[u8; 32]; 16],
     leaf_index: Field,
     action_index: Field,
@@ -34,7 +34,6 @@ fn main(
     if (relayer != 0) {
         assert(amount_relayer != 0);
     }
-
     let mut newAmount= 0;
     if is_deposit == [1] {
         let emptyCall :[u8; 32] = [0; 32];
@@ -98,7 +97,6 @@ fn main(
         let valid_old_signature = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, old_signature, old_data);
         assert(valid_old_signature, "Invalid old signature");
         let old_leaf = std::hash::blake3(old_signature);
-
         let computed_root = compute_merkle_root(old_leaf, leaf_index, witnesses);
         assert(computed_root == merkle_root);
     }
