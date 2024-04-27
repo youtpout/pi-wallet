@@ -145,7 +145,7 @@ fn concat_data(
     let mut array_concat:[u8;160] = [0; 160];
     let mut array_unique:[u8;128]= [0; 128];
 
-    for i in 0..512 {
+    for i in 0..160 {
         if i < 32 {
             array_concat[i] = pub_key_x[i];
             array_unique[i] = pub_key_x[i];
