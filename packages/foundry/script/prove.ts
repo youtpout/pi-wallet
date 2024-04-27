@@ -19,7 +19,7 @@ async function getCircuit() {
 }
 
 const piCircuit: CompiledCircuit = await getCircuit();
-const backend = new BarretenbergBackend(piCircuit, { threads: 8 });
+const backend = new BarretenbergBackend(piCircuit);
 const noir = new Noir(piCircuit, backend);
 
 // 0x14791697260E4c9A71f18484C9f997B308e59325 
@@ -84,7 +84,8 @@ const input = {
   pub_key_x: Array.from(datax),
   pub_key_y: Array.from(datay),
   oldAmount: 0,
-  witnesses: Array(32).fill(Array(32).fill(0)),
+  // size 16 bigger 
+  witnesses: Array(16).fill(Array(32).fill(0)),
   leafIndex: 0,
   actionIndex: 1,
   token: 1,
@@ -107,7 +108,6 @@ try {
   console.time("prove");
   const proof = await noir.generateProof(input);
   console.timeEnd("prove");
-  console.log('results', proof.proof);
   console.log('logs', 'Verifying proof... ⌛');
   const verification = await noir.verifyProof(proof);
   if (verification) {

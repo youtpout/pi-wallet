@@ -9,7 +9,8 @@ fn main(
     pub_key_x: [u8; 32],
     pub_key_y: [u8; 32],
     oldAmount: Field,
-    witnesses: [[u8; 32]; 32],
+      // size 16, bigger array failed to prove in js 
+    witnesses: [[u8; 32]; 16],
     leafIndex: Field,
     actionIndex: Field,
     token: pub Field,
@@ -120,7 +121,7 @@ fn compute_merkle_root<N>(leaf: [u8; 32], index: Field, hash_path: [[u8; 32]; N]
             arr[i] = hash_left[i];
             arr[i+32]=hash_right[i];
         }
-        current = std::hash::blake3(arr);
+        current = std::hash::sha256(arr);
         //std::println("current");
         //std::println(current);
     }
