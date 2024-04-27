@@ -15,7 +15,7 @@
     "lint": "forge fmt --check && prettier --check ./script/**/*.js",
     "test": "forge test",
     "verify": "forge build --build-info --build-info-path out/build-info/ && forge script script/VerifyAll.s.sol --ffi --rpc-url ${1:-default_network}",
-    "prove": "cd noir/ && nargo compile && cd .. && tsx script/prove.ts",
+    "prove": "tsx script/prove.ts",
     "provejs": "node script/prove.js"
   },
   "dependencies": {
