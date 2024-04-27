@@ -7,20 +7,8 @@ import { blake3 } from '@noble/hashes/blake3';
 import { join, resolve } from 'path';
 
 
-async function getCircuit() {
-  const basePath: any = resolve('noir');
-  const fm = createFileManager(basePath);
-  const compiled = await compile(fm, basePath);
-
-  if (!('program' in compiled)) {
-    throw new Error('Compilation failed');
-  }
-  return compiled.program;
-}
-
-const piCircuit: CompiledCircuit = await getCircuit();
-const backend = new BarretenbergBackend(piCircuit);
-const noir = new Noir(piCircuit, backend);
+const backend = new BarretenbergBackend(circuit);
+const noir = new Noir(circuit, backend);
 
 // 0x14791697260E4c9A71f18484C9f997B308e59325 
 const privateKey = "0x0123456789012345678901234567890123456789012345678901234567890123";
