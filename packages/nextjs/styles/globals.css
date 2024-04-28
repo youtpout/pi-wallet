@@ -30,3 +30,24 @@ p {
 .btn.btn-ghost {
   @apply shadow-none;
 }
+
+.passphrase {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: white;
+  min-height: 300px;
+  min-width: 300px;
+  max-width: 600px;
+  width: 30vw;
+  justify-content: space-between;
+}
+
+.mnemonic {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  padding: 10px;
+  flex: 1;
+}

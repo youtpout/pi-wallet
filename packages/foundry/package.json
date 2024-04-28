@@ -16,7 +16,8 @@
     "verify": "forge build --build-info --build-info-path out/build-info/ && forge script script/VerifyAll.s.sol --ffi --rpc-url ${1:-default_network}",
     "prove": "tsx script/prove.ts",
     "provejs": "node script/prove.js",
-    "noir": "cd noir/ && nargo compile && nargo codegen-verifier"
+    "noir": "cd noir/ && nargo compile && nargo codegen-verifier",
+    "typechain": "typechain --target=ethers-v6 --out-dir ../nextjs/typechain out/WalletManager.sol/**/*.json  --show-stack-traces"
   },
   "dependencies": {
     "@noble/hashes": "^1.4.0",
@@ -24,6 +25,7 @@
     "@noir-lang/noir_js": "^0.27.0",
     "@noir-lang/noir_wasm": "^0.27.0",
     "@noir-lang/types": "^0.27.0",
+    "@typechain/ethers-v6": "^0.5.1",
     "dotenv": "~16.3.1",
     "envfile": "~6.18.0",
     "ethers": "^6.12.0",

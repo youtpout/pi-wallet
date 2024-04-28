@@ -1,5 +1,7 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { Metadata } from "next";
+import BodyApp from "~~/components/Body";
+import { Passphrase } from "~~/components/Passphrase";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
@@ -47,14 +49,20 @@ export const metadata: Metadata = {
 };
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+
   return (
     <html suppressHydrationWarning>
-      <body>
+      <body id="modal-root">
         <ThemeProvider enableSystem>
-          <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
+          <ScaffoldEthAppWithProviders>
+            <BodyApp>
+              {children}
+            </BodyApp>
+
+          </ScaffoldEthAppWithProviders>
         </ThemeProvider>
       </body>
-    </html>
+    </html >
   );
 };
 
