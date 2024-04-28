@@ -40,6 +40,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@aztec/bb.js@npm:0.35.1":
+  version: 0.35.1
+  resolution: "@aztec/bb.js@npm:0.35.1"
+  dependencies:
+    comlink: ^4.4.1
+    commander: ^10.0.1
+    debug: ^4.3.4
+    tslib: ^2.4.0
+  bin:
+    bb.js: dest/node/main.js
+  checksum: 8e3551f059523d9494af4721a9219e2c6e63c8ed1df447a2d0daa9f8526a794758ae708bd1d9c9b1fbfb89c56dc867d9f0b87250dbabfcde23ec02dabbb5a32a
+  languageName: node
+  linkType: hard
+
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.16.7, @babel/code-frame@npm:^7.23.5":
   version: 7.24.2
   resolution: "@babel/code-frame@npm:7.24.2"
@@ -1358,6 +1372,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noir-lang/acvm_js@npm:0.44.0":
+  version: 0.44.0
+  resolution: "@noir-lang/acvm_js@npm:0.44.0"
+  checksum: 5a65bf4c5c72ed228969459d629c84774682783f17bcba6a12eaeb76142c37dbe02dac00b7e6e64e9bf175b1dc075dd3b106fb3dfeb7549f18c127ccdd8f4add
+  languageName: node
+  linkType: hard
+
 "@noir-lang/backend_barretenberg@npm:^0.27.0":
   version: 0.27.0
   resolution: "@noir-lang/backend_barretenberg@npm:0.27.0"
@@ -1366,6 +1387,17 @@ __metadata:
     "@noir-lang/types": 0.27.0
     fflate: ^0.8.0
   checksum: a4a1b6fc3bd892844fefbaf2cb61e65e06cf45a786d2d0a21bf6e10031ea28743dd9861b38e432a275b3f68afe47b46323f88f13dcfb7522d8377adba7f21522
+  languageName: node
+  linkType: hard
+
+"@noir-lang/backend_barretenberg@npm:^0.28.0":
+  version: 0.28.0
+  resolution: "@noir-lang/backend_barretenberg@npm:0.28.0"
+  dependencies:
+    "@aztec/bb.js": 0.35.1
+    "@noir-lang/types": 0.28.0
+    fflate: ^0.8.0
+  checksum: 07b9c44b03beac375b9fed87e0d2a0ab6418b173e5e9c5ce998bccad8cc8da7a13935a71a4bf09cf3b34b1915c4158979ee23c9868e950a9c3a7a8f62d27654d
   languageName: node
   linkType: hard
 
@@ -1380,6 +1412,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noir-lang/noir_js@npm:^0.28.0":
+  version: 0.28.0
+  resolution: "@noir-lang/noir_js@npm:0.28.0"
+  dependencies:
+    "@noir-lang/acvm_js": 0.44.0
+    "@noir-lang/noirc_abi": 0.28.0
+    "@noir-lang/types": 0.28.0
+  checksum: f068bf1fc2316f58c0daf7bedbecd2a2d2b69a70bf542b9e936895ad122214de8dbc493bd2814df224cb768fde62d33696d8133d845a3f9c2031cf1719a69c21
+  languageName: node
+  linkType: hard
+
 "@noir-lang/noir_wasm@npm:^0.27.0":
   version: 0.27.0
   resolution: "@noir-lang/noir_wasm@npm:0.27.0"
@@ -1387,6 +1430,16 @@ __metadata:
     "@noir-lang/types": 0.27.0
     pako: ^2.1.0
   checksum: 982ebea6bc2aa2e2592aa52797a307a9045665141878a34599baca1319437f7f4c5bc960619e3526e7384c9362631f2eed621502c50a1a4f0dae70eb4a1e6c88
+  languageName: node
+  linkType: hard
+
+"@noir-lang/noir_wasm@npm:^0.28.0":
+  version: 0.28.0
+  resolution: "@noir-lang/noir_wasm@npm:0.28.0"
+  dependencies:
+    "@noir-lang/types": 0.28.0
+    pako: ^2.1.0
+  checksum: 14a3d0ddc89459341c228bcf85f98c04f5baee386acc21063aa8a841d402a340d43ab62ca848385a557ca343ac0f2e66acccdb0d50b51b65016c6025d05a5922
   languageName: node
   linkType: hard
 
@@ -1399,10 +1452,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noir-lang/noirc_abi@npm:0.28.0":
+  version: 0.28.0
+  resolution: "@noir-lang/noirc_abi@npm:0.28.0"
+  dependencies:
+    "@noir-lang/types": 0.28.0
+  checksum: 13dde9f0407003b02015de4a48788e644fa606743b993d7538a901574b0bf21fac23247644768d9168e75de8b7a023b7adccbada455e80334840acc7aa6315a0
+  languageName: node
+  linkType: hard
+
 "@noir-lang/types@npm:0.27.0, @noir-lang/types@npm:^0.27.0":
   version: 0.27.0
   resolution: "@noir-lang/types@npm:0.27.0"
   checksum: 39edc11e3c55c3322fbe84eace127f1702cdfb61c42bc6d2ace20de50fa156880e46aeb5a92f087dba85fc846814c080496193b18b763f129b034d7da8a59341
+  languageName: node
+  linkType: hard
+
+"@noir-lang/types@npm:0.28.0, @noir-lang/types@npm:^0.28.0":
+  version: 0.28.0
+  resolution: "@noir-lang/types@npm:0.28.0"
+  checksum: f9bb49855e06bb9839ad05c20364a7950cdbfb1a7d3f6030f9422cf181a80a35a93f8164d24c9b4a5128cb9caa45309b3181ba33a0c0a683db2f13c8ae6f2fc2
   languageName: node
   linkType: hard
 
@@ -1733,6 +1802,11 @@ __metadata:
   resolution: "@se-2/nextjs@workspace:packages/nextjs"
   dependencies:
     "@heroicons/react": ~2.0.11
+    "@noble/hashes": ^1.4.0
+    "@noir-lang/backend_barretenberg": ^0.28.0
+    "@noir-lang/noir_js": ^0.28.0
+    "@noir-lang/noir_wasm": ^0.28.0
+    "@noir-lang/types": ^0.28.0
     "@rainbow-me/rainbowkit": ~2.0.2
     "@tanstack/react-query": ~5.28.6
     "@trivago/prettier-plugin-sort-imports": ~4.1.1
