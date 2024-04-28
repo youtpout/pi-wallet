@@ -6,7 +6,6 @@ import "./DeployHelpers.s.sol";
 
 contract DeployScript is ScaffoldETHDeploy {
     error InvalidPrivateKey(string);
-    UltraVerifier public verifier;
 
     function run() external {
         uint256 deployerPrivateKey = setupLocalhostEnv();
@@ -16,10 +15,8 @@ contract DeployScript is ScaffoldETHDeploy {
             );
         }
         vm.startBroadcast(deployerPrivateKey);
-        verifier = new UltraVerifier();
         WalletManager yourContract = new WalletManager(
-            vm.addr(deployerPrivateKey),
-            verifier
+            vm.addr(deployerPrivateKey)
         );
         console.logString(
             string.concat(

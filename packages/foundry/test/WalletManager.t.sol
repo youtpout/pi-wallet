@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../contracts/WalletManager.sol";
-import "../noir/contract/circuits/plonk_vk.sol";
 
 contract WalletManagerTest is Test {
     WalletManager public walletManager;
@@ -16,8 +15,7 @@ contract WalletManagerTest is Test {
     address daniel = makeAddr("Daniel");
 
     function setUp() public {
-        verifier = new UltraVerifier();
-        walletManager = new WalletManager(bob, verifier);
+        walletManager = new WalletManager(bob);
     }
 
     function testSha() public {

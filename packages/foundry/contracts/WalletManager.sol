@@ -25,6 +25,7 @@ contract WalletManager is
     mapping(address => bool) public isAuthorizedToken;
     mapping(bytes32 => bool) public nullifiers;
     mapping(bytes32 => bool) public commitments;
+    
     UltraVerifier public immutable verifier;
 
     bytes32 constant zeroByte = bytes32(uint256(0));
@@ -53,10 +54,9 @@ contract WalletManager is
     // Constructor: Called once on contract deployment
     // Check packages/foundry/deploy/Deploy.s.sol
     constructor(
-        address _owner,
-        UltraVerifier _verifier
+        address _owner
     ) MerkleTreeWithHistory(16) Ownable(_owner) {
-        verifier = _verifier;
+        verifier = new UltraVerifier();
     }
 
     function setAuthorizedToken(
