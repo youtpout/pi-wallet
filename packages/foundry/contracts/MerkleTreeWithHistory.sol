@@ -13,8 +13,8 @@ contract MerkleTreeWithHistory {
     mapping(uint256 => bytes32) public filledSubtrees;
     mapping(uint256 => bytes32) public roots;
     uint32 public constant ROOT_HISTORY_SIZE = 30;
-    uint32 public currentRootIndex = 0;
-    uint32 public nextIndex = 0;
+    uint256 public currentRootIndex = 0;
+    uint256 public nextIndex = 0;
 
     constructor(uint32 _levels) {
         require(_levels > 0, "_levels should be greater than zero");
@@ -22,30 +22,19 @@ contract MerkleTreeWithHistory {
         levels = _levels;
 
         for (uint32 i = 0; i < _levels; i++) {
-            filledSubtrees[i] = zeros(i);
+            filledSubtrees[i] = _zeros(i);
         }
 
-        roots[0] = zeros(_levels - 1);
+        roots[0] = _zeros(_levels - 1);
     }
 
-    /**
-    @dev Hash 2 tree leaves
-    */
-    function hashLeftRight(
-        bytes32 _left,
-        bytes32 _right
-    ) public view returns (bytes32 value) {
-        bytes memory data = abi.encode(_left, _right);
-        value = sha256(data);
-    }
-
-    function _insert(bytes32 _leaf) internal returns (uint32 index) {
-        uint32 _nextIndex = nextIndex;
+    function _insert(bytes32 _leaf) internal returns (uint256 index) {
+        uint256 _nextIndex = nextIndex;
         require(
             _nextIndex != uint32(2) ** levels,
             "Merkle tree is full. No more leaves can be added"
         );
-        uint32 currentIndex = _nextIndex;
+        uint256 currentIndex = _nextIndex;
         bytes32 currentLevelHash = _leaf;
         bytes32 left;
         bytes32 right;
@@ -53,17 +42,17 @@ contract MerkleTreeWithHistory {
         for (uint32 i = 0; i < levels; i++) {
             if (currentIndex % 2 == 0) {
                 left = currentLevelHash;
-                right = zeros(i);
+                right = _zeros(i);
                 filledSubtrees[i] = currentLevelHash;
             } else {
                 left = filledSubtrees[i];
                 right = currentLevelHash;
             }
-            currentLevelHash = hashLeftRight(left, right);
+            currentLevelHash = _hashLeftRight(left, right);
             currentIndex /= 2;
         }
 
-        uint32 newRootIndex = (currentRootIndex + 1) % ROOT_HISTORY_SIZE;
+        uint256 newRootIndex = (currentRootIndex + 1) % ROOT_HISTORY_SIZE;
         currentRootIndex = newRootIndex;
         roots[newRootIndex] = currentLevelHash;
         nextIndex = _nextIndex + 1;
@@ -77,8 +66,8 @@ contract MerkleTreeWithHistory {
         if (_root == 0) {
             return false;
         }
-        uint32 _currentRootIndex = currentRootIndex;
-        uint32 i = _currentRootIndex;
+        uint256 _currentRootIndex = currentRootIndex;
+        uint256 i = _currentRootIndex;
         do {
             if (_root == roots[i]) {
                 return true;
@@ -98,8 +87,19 @@ contract MerkleTreeWithHistory {
         return roots[currentRootIndex];
     }
 
+    /**
+    @dev Hash 2 tree leaves
+    */
+    function _hashLeftRight(
+        bytes32 _left,
+        bytes32 _right
+    ) private pure returns (bytes32 value) {
+        bytes memory data = abi.encode(_left, _right);
+        value = sha256(data);
+    }
+
     /// @dev provides Zero (Empty) elements for a poseidon MerkleTree based on sha256
-    function zeros(uint256 i) public pure returns (bytes32) {
+    function _zeros(uint256 i) private pure returns (bytes32) {
         if (i == 0) return bytes32(0);
         else if (i == 1)
             return

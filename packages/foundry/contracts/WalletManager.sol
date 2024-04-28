@@ -8,7 +8,7 @@ import "../noir/contract/circuits/plonk_vk.sol";
 import "./MerkleTreeWithHistory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-
+import {TransferHelper} from "./libraries/TransferHelper.sol";
 // Use openzeppelin to inherit battle-tested implementations (ERC20, ERC721, etc)
 // import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -31,6 +31,8 @@ contract WalletManager is
     error UnauthorizedToken(address token);
     error CommitmentAlreadyUsed(bytes32 commitment);
     error NullifierAlreadyUsed(bytes32 nullifier);
+    error InvalidProof(bytes proof);
+    error AmountTooLow(uint256);
 
     enum ActionType {
         Deposit,
@@ -74,6 +76,10 @@ contract WalletManager is
             revert CommitmentAlreadyUsed(_nullifier);
         }
 
+        if (msg.value < _amountRelayer) {
+            revert AmountTooLow(msg.value);
+        }
+
         nullifiers[_nullifier] = true;
         commitments[_commitment] = true;
     }
@@ -98,6 +104,18 @@ contract WalletManager is
         }
         nullifiers[_nullifier] = true;
         commitments[_commitment] = true;
+
+        if (_amount < _amountRelayer) {
+            revert AmountTooLow(_amount);
+        }
+
+        // transfer from user to contract
+        TransferHelper.safeTransferFrom(
+            _token,
+            msg.sender,
+            address(this),
+            _amount
+        );
     }
 
     function transfer(ProofData calldata _proofData) external nonReentrant {
@@ -131,7 +149,79 @@ contract WalletManager is
         commitments[_proofData.commitment] = true;
         nullifiers[_proofDataBack.nullifier] = true;
         commitments[_proofDataBack.commitment] = true;
+
+        if (_proofData.amount < _proofData.amountRelayer) {
+            revert AmountTooLow(_proofData.amount);
+        }
+
+        if (_proofDataBack.amount < _proofDataBack.amountRelayer) {
+            revert AmountTooLow(_proofDataBack.amount);
+        }
     }
 
-    function _deposit() private {}
+    function _deposit(ProofData calldata _proofData) private {
+        if (_proofData.amountRelayer > 0 && _proofData.relayer != address(0)) {
+            if (_proofData.token == address(0)) {
+                TransferHelper.safeTransferETH(
+                    _proofData.relayer,
+                    _proofData.amountRelayer
+                );
+            } else {
+                TransferHelper.safeTransfer(
+                    _proofData.token,
+                    _proofData.relayer,
+                    _proofData.amountRelayer
+                );
+            }
+        }
+
+        _verifyProof(_proofData, true);
+
+        uint256 insertedIndex = _insert(_proofData.commitment);
+        emit AddAction(
+            _proofData.nullifier,
+            insertedIndex,
+            _proofData,
+            ActionType.Deposit
+        );
+    }
+
+    function _verifyProof(
+        ProofData calldata _proofData,
+        bool _isDeposit
+    ) private view {
+        bytes32[] memory _publicInputs = new bytes32[](134);
+        _publicInputs[0] = bytes32(uint256(uint160(_proofData.token)));
+        for (uint i = 0; i < 32; i++) {
+            uint256 index = i + 1;
+            _publicInputs[index] = bytes32(
+                uint256(uint8(_proofData.nullifier[i]))
+            );
+        }
+        for (uint i = 0; i < 32; i++) {
+            uint256 index = i + 33;
+            _publicInputs[index] = bytes32(
+                uint256(uint8(_proofData.commitment[i]))
+            );
+        }
+        for (uint i = 0; i < 32; i++) {
+            uint256 index = i + 65;
+            _publicInputs[index] = bytes32(uint256(uint8(_proofData.root[i])));
+        }
+        _publicInputs[97] = bytes32(_proofData.amount);
+        _publicInputs[98] = bytes32(_proofData.amountRelayer);
+        _publicInputs[99] = bytes32(uint256(uint160(_proofData.receiver)));
+        _publicInputs[100] = bytes32(uint256(uint160(_proofData.relayer)));
+        _publicInputs[101] = _isDeposit
+            ? bytes32(uint256(1))
+            : bytes32(uint256(0));
+        for (uint i = 0; i < 32; i++) {
+            uint256 index = i + 65;
+            _publicInputs[index] = bytes32(uint256(uint8(_proofData.call[i])));
+        }
+
+        if (!verifier.verify(_proofData.proof, _publicInputs)) {
+            revert InvalidProof(_proofData.proof);
+        }
+    }
 }
