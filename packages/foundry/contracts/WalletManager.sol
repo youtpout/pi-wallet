@@ -36,6 +36,7 @@ contract WalletManager is
     error NullifierAlreadyUsed(bytes32 nullifier);
     error InvalidProof(bytes proof);
     error AmountTooLow(uint256);
+    error InvalidRoot(bytes32 root);
 
     enum ActionType {
         Deposit,
@@ -79,7 +80,9 @@ contract WalletManager is
         if (commitments[_commitment]) {
             revert CommitmentAlreadyUsed(_nullifier);
         }
-
+        if (!isKnownRoot(_root)) {
+            revert InvalidRoot(_root);
+        }
         if (msg.value < _amountRelayer) {
             revert AmountTooLow(msg.value);
         }
@@ -119,6 +122,10 @@ contract WalletManager is
         if (commitments[_commitment]) {
             revert CommitmentAlreadyUsed(_nullifier);
         }
+        if (!isKnownRoot(_root)) {
+            revert InvalidRoot(_root);
+        }
+        // we block token only on deposit, the user can withdraw previously authorized tokens
         if (!isAuthorizedToken[_token]) {
             revert UnauthorizedToken(_token);
         }
@@ -161,6 +168,10 @@ contract WalletManager is
         if (commitments[_proofData.commitment]) {
             revert CommitmentAlreadyUsed(_proofData.nullifier);
         }
+        if (!isKnownRoot(_proofData.root)) {
+            revert InvalidRoot(_proofData.root);
+        }
+
         nullifiers[_proofData.nullifier] = true;
         commitments[_proofData.commitment] = true;
 
@@ -183,6 +194,13 @@ contract WalletManager is
         if (commitments[_proofDataBack.commitment]) {
             revert CommitmentAlreadyUsed(_proofDataBack.commitment);
         }
+        if (!isKnownRoot(_proofDataBack.root)) {
+            revert InvalidRoot(_proofData.root);
+        }
+        if (!isKnownRoot(_proofDataBack.root)) {
+            revert InvalidRoot(_proofData.root);
+        }
+
         nullifiers[_proofData.nullifier] = true;
         commitments[_proofData.commitment] = true;
         nullifiers[_proofDataBack.nullifier] = true;
@@ -326,9 +344,10 @@ contract WalletManager is
         _publicInputs[100] = bytes32(uint256(uint160(_proofData.relayer)));
         _publicInputs[101] = _isDeposit ? oneByte : zeroByte;
         _publicInputs[102] = _proofData.approve ? oneByte : zeroByte;
+        bytes32 hashCall = _isDeposit ? zeroByte : sha256(_proofData.call);
         for (uint i = 0; i < 32; i++) {
             uint256 index = i + 103;
-            _publicInputs[index] = bytes32(uint256(uint8(_proofData.call[i])));
+            _publicInputs[index] = bytes32(uint256(uint8(hashCall[i])));
         }
 
         if (!verifier.verify(_proofData.proof, _publicInputs)) {
