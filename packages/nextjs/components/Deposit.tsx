@@ -2,13 +2,13 @@
 
 import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ethers, parseEther, toBeArray } from "ethers";
+import { Signature, SigningKey, Wallet, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
 import { AccountContext } from "./Body";
 import circuit from '../../../packages/foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
 import { BarretenbergBackend, CompiledCircuit } from '@noir-lang/backend_barretenberg';
 import { Noir } from '@noir-lang/noir_js';
-import { ArrayFromNumber, amountToBytes, getBytesSign, hashSignature, pubKeyFromWallet } from "~~/utils/converter";
+import { ArrayFromNumber, amountToBytes, getBytesSign, hashSignature, hexToBytes, numToUint8Array, pubKeyFromWallet } from "~~/utils/converter";
 
 export const Deposit = () => {
     const [input, setInput] = useState({ amount: 0.01, server: true });
@@ -38,7 +38,7 @@ export const Deposit = () => {
 
     const initNoir = async () => {
         // @ts-ignore
-        const backend = new BarretenbergBackend(circuit, { threads: 8 });
+        const backend = new BarretenbergBackend(circuit);
         setBackend(backend);
 
         // @ts-ignore
@@ -51,10 +51,15 @@ export const Deposit = () => {
         const amountWei = parseEther(input.amount.toString());
 
         const wallet = new ethers.Wallet(account);
+        console.log(wallet);
         const { x: datax, y: datay } = pubKeyFromWallet(wallet);
-        const amount = amountToBytes(input.amount.toString());
+        const amount = Array.from(numToUint8Array(10000000000000000));
+        const toto = zeroPadBytes("0x" + amountWei.toString(16), 32);
+
+        const tets2 = getBytes(zeroPadBytes("0x" + amountWei.toString(16), 32));
+        const test = hexToBytes(amountWei);
         let amountIn = "0x" + amountWei.toString(16);
-        const token = ArrayFromNumber(1);
+        const token = ArrayFromNumber(0);
         const index = ArrayFromNumber(1);
         const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(amount);
         const unique_array = datax.concat(datay).concat(index).concat(token);
@@ -62,10 +67,10 @@ export const Deposit = () => {
         const unique_hash = blake3(Uint8Array.from(unique_array));
         const signature = wallet.signingKey.sign(hash);
         const bytes_sign = getBytesSign(signature);
-        const new_leaf = hashSignature(signature);
+        const new_leaf = blake3(Uint8Array.from(bytes_sign));
         const signature_unique = wallet.signingKey.sign(unique_hash);
         const bytes_sign_unique = getBytesSign(signature_unique);
-        const unique = hashSignature(signature_unique);
+        const unique = blake3(Uint8Array.from(bytes_sign_unique));
 
         const data = {
             signature: bytes_sign,
@@ -84,7 +89,7 @@ export const Deposit = () => {
             // new leaf act as nullifer
             new_leaf: Array.from(new_leaf),
             merkle_root: Array(32).fill(0),
-            amount: amountIn,
+            amount: 10000000000000000,
             amount_relayer: 0,
             receiver: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
             relayer: 0,

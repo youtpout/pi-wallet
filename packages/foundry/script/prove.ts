@@ -11,7 +11,7 @@ const backend = new BarretenbergBackend(circuit, { threads: 32 });
 const noir = new Noir(circuit, backend);
 
 // 0x14791697260E4c9A71f18484C9f997B308e59325 
-const privateKey = "0x0123456789012345678901234567890123456789012345678901234567890123";
+const privateKey = "0xef920b1ef122bb042a7f686a5371313a60ea8bcc63f0ed39476466b7c191311b";
 
 const wallet = new ethers.Wallet(privateKey);
 
@@ -28,9 +28,9 @@ console.log("public key y coordinate 📊: ", pub_key_y);
 let datay = Array.from(ethers.getBytes(ethers.zeroPadValue("0x" + pub_key_y, 32)));
 console.log("datay", datay);
 
-const amount = Array.from(numToUint8Array(1000));
+const amount = Array.from(numToUint8Array(10000000000000000));
 console.log("amount", amount);
-const token = Array.from(numToUint8Array(1));
+const token = Array.from(numToUint8Array(0));
 
 const index = Array.from(numToUint8Array(1));
 console.log("index", index);
@@ -76,13 +76,13 @@ const input = {
   witnesses: Array(16).fill(Array(32).fill(0)),
   leaf_index: 0,
   action_index: 1,
-  token: 1,
+  token: 0,
   // unique need to store stoken, action by token, to retrieve data from wallet
   unique: Array.from(unique),
   // new leaf act as nullifer
   new_leaf: Array.from(new_leaf),
   merkle_root: Array(32).fill(0),
-  amount: 1000,
+  amount: 10000000000000000,
   amount_relayer: 0,
   receiver: 15,
   relayer: 0,

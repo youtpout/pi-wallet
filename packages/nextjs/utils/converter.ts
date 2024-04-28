@@ -16,6 +16,23 @@ export function numToUint8Array(num: number) {
     return arr;
 }
 
+export function hexToBytes(big: bigint) {
+    const hexString = new big.toString(16);
+    let arr = new Uint8Array(32);
+
+    if (hexString.length % 2 !== 0) {
+        throw "Must have an even number of hex digits to convert to bytes";
+    }
+    var numBytes = hexString.length / 2;
+    var byteArray = new Uint8Array(numBytes);
+    for (var i = 0; i < numBytes; i++) {
+        byteArray[i] = parseInt(hexString.substr(i * 2, 2), 16);
+    }
+    return byteArray;
+}
+
+
+
 export function hashSignature(signature: Signature) {
     return blake3(Uint8Array.from(getBytesSign(signature)))
 }
