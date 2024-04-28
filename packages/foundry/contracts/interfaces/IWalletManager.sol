@@ -18,6 +18,7 @@ interface IWalletManager {
     function deposit(
         bytes32 _commitment,
         bytes32 _nullifier,
+        bytes32 _root,
         address _relayer,
         uint256 _amountRelayer,
         bytes calldata _proof
@@ -26,6 +27,7 @@ interface IWalletManager {
     function depositErc20(
         bytes32 _commitment,
         bytes32 _nullifier,
+        bytes32 _root,
         address _token,
         address _relayer,
         uint256 _amount,

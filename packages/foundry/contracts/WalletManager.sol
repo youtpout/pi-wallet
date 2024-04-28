@@ -9,8 +9,7 @@ import "./MerkleTreeWithHistory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {TransferHelper} from "./libraries/TransferHelper.sol";
-// Use openzeppelin to inherit battle-tested implementations (ERC20, ERC721, etc)
-// import "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * A smart contract that allows changing a state variable of the contract and tracking the changes
@@ -27,6 +26,10 @@ contract WalletManager is
     mapping(bytes32 => bool) public nullifiers;
     mapping(bytes32 => bool) public commitments;
     UltraVerifier public immutable verifier;
+
+    bytes32 constant zeroByte = bytes32(uint256(0));
+    bytes32 constant oneByte = bytes32(uint256(1));
+    bytes constant emptyBytes = "";
 
     error UnauthorizedToken(address token);
     error CommitmentAlreadyUsed(bytes32 commitment);
@@ -65,6 +68,7 @@ contract WalletManager is
     function deposit(
         bytes32 _commitment,
         bytes32 _nullifier,
+        bytes32 _root,
         address _relayer,
         uint256 _amountRelayer,
         bytes calldata _proof
@@ -82,11 +86,26 @@ contract WalletManager is
 
         nullifiers[_nullifier] = true;
         commitments[_commitment] = true;
+        ProofData memory proofData = ProofData(
+            _commitment,
+            _nullifier,
+            _root,
+            address(0),
+            address(this),
+            _relayer,
+            msg.value,
+            _amountRelayer,
+            _proof,
+            emptyBytes
+        );
+
+        _deposit(proofData);
     }
 
     function depositErc20(
         bytes32 _commitment,
         bytes32 _nullifier,
+        bytes32 _root,
         address _token,
         address _relayer,
         uint256 _amount,
@@ -116,6 +135,21 @@ contract WalletManager is
             address(this),
             _amount
         );
+
+        ProofData memory proofData = ProofData(
+            _commitment,
+            _nullifier,
+            _root,
+            _token,
+            address(this),
+            _relayer,
+            _amount,
+            _amountRelayer,
+            _proof,
+            emptyBytes
+        );
+
+        _deposit(proofData);
     }
 
     function transfer(ProofData calldata _proofData) external nonReentrant {
@@ -127,6 +161,8 @@ contract WalletManager is
         }
         nullifiers[_proofData.nullifier] = true;
         commitments[_proofData.commitment] = true;
+
+        _withdraw(_proofData);
     }
 
     function swap(
@@ -157,9 +193,26 @@ contract WalletManager is
         if (_proofDataBack.amount < _proofDataBack.amountRelayer) {
             revert AmountTooLow(_proofDataBack.amount);
         }
+
+        // swap make 2 actions withdraw and after deposit, so an user can make swap and receive token in this private balance
+        uint256 balanceBefore = IERC20(_proofDataBack.token).balanceOf(
+            address(this)
+        );
+        _withdraw(_proofData);
+        uint256 balanceAfter = IERC20(_proofDataBack.token).balanceOf(
+            address(this)
+        );
+        // todo manage extra tokens, a swap is never perfect
+        uint256 received = balanceAfter - balanceBefore;
+        // we need to received equal or more than deposited
+        if (received < (_proofDataBack.amount + _proofDataBack.amountRelayer)) {
+            revert AmountTooLow(received);
+        }
+        _deposit(_proofData);
     }
 
-    function _deposit(ProofData calldata _proofData) private {
+    function _deposit(ProofData memory _proofData) private {
+        // first pay the relayer if we have one
         if (_proofData.amountRelayer > 0 && _proofData.relayer != address(0)) {
             if (_proofData.token == address(0)) {
                 TransferHelper.safeTransferETH(
@@ -186,8 +239,53 @@ contract WalletManager is
         );
     }
 
+    function _withdraw(ProofData memory _proofData) private {
+        // first pay the relayer
+        if (_proofData.amountRelayer > 0 && _proofData.relayer != address(0)) {
+            if (_proofData.token == address(0)) {
+                TransferHelper.safeTransferETH(
+                    _proofData.relayer,
+                    _proofData.amountRelayer
+                );
+            } else {
+                TransferHelper.safeTransfer(
+                    _proofData.token,
+                    _proofData.relayer,
+                    _proofData.amountRelayer
+                );
+            }
+        }
+
+        // transfer with call parameter (usefull if user interract with other contract)
+        if (_proofData.token == address(0)) {
+            (bool success, ) = _proofData.receiver.call{
+                value: _proofData.amount
+            }(_proofData.call);
+            require(success, "STE");
+        } else {
+            // pretransfer and call
+            TransferHelper.safeTransfer(
+                _proofData.token,
+                _proofData.receiver,
+                _proofData.amount
+            );
+            (bool success, ) = _proofData.receiver.call(_proofData.call);
+            require(success, "STE");
+        }
+
+        _verifyProof(_proofData, false);
+
+        uint256 insertedIndex = _insert(_proofData.commitment);
+        emit AddAction(
+            _proofData.nullifier,
+            insertedIndex,
+            _proofData,
+            ActionType.Withdraw
+        );
+    }
+
     function _verifyProof(
-        ProofData calldata _proofData,
+        ProofData memory _proofData,
         bool _isDeposit
     ) private view {
         bytes32[] memory _publicInputs = new bytes32[](134);
@@ -212,9 +310,7 @@ contract WalletManager is
         _publicInputs[98] = bytes32(_proofData.amountRelayer);
         _publicInputs[99] = bytes32(uint256(uint160(_proofData.receiver)));
         _publicInputs[100] = bytes32(uint256(uint160(_proofData.relayer)));
-        _publicInputs[101] = _isDeposit
-            ? bytes32(uint256(1))
-            : bytes32(uint256(0));
+        _publicInputs[101] = _isDeposit ? oneByte : zeroByte;
         for (uint i = 0; i < 32; i++) {
             uint256 index = i + 65;
             _publicInputs[index] = bytes32(uint256(uint8(_proofData.call[i])));
