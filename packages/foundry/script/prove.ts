@@ -92,25 +92,28 @@ const input = {
   call: Array(32).fill(0)
 };
 
-try {
-  console.log('logs', 'Generating proof... ✅');
-  console.time("prove");
-  const proof = await noir.generateProof(input);
-  console.timeEnd("prove");
-  console.log('logs', 'Verifying proof... ⌛');
-  const verification = await noir.verifyProof(proof);
-  if (verification) {
-    console.log('logs', 'Proof verified... ✅');
-  } else {
-    console.log('logs', 'Proof verification failed... 🟥');
+async function prove() {
+  try {
+    console.log('logs', 'Generating proof... ✅');
+    console.time("prove");
+    const proof = await noir.generateFinalProof(input);
+    console.timeEnd("prove");
+    console.log('logs', 'Verifying proof... ⌛');
+    const verification = await noir.verifyFinalProof(proof);
+    if (verification) {
+      console.log('logs', 'Proof verified... ✅');
+    } else {
+      console.log('logs', 'Proof verification failed... 🟥');
+    }
+  } catch (error) {
+    console.error("error proof", error);
   }
-} catch (error) {
-  console.error("error proof", error);
-}
-finally {
-  process.exit();
+  finally {
+    process.exit();
+  }
 }
 
+prove().then();
 
 
 function numToUint8Array(num) {

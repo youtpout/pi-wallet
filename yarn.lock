@@ -26,9 +26,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aztec/bb.js@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@aztec/bb.js@npm:0.32.0"
+"@aztec/bb.js@npm:0.19.0":
+  version: 0.19.0
+  resolution: "@aztec/bb.js@npm:0.19.0"
   dependencies:
     comlink: ^4.4.1
     commander: ^10.0.1
@@ -36,21 +36,7 @@ __metadata:
     tslib: ^2.4.0
   bin:
     bb.js: dest/node/main.js
-  checksum: 0919957e141ae0a65cfab961dce122fa06de628a10b7cb661d31d8ed4793ce80980fcf315620ceffffa45581db941bad43c392f4b2aa9becaaf7d2faaba01ffc
-  languageName: node
-  linkType: hard
-
-"@aztec/bb.js@npm:0.35.1":
-  version: 0.35.1
-  resolution: "@aztec/bb.js@npm:0.35.1"
-  dependencies:
-    comlink: ^4.4.1
-    commander: ^10.0.1
-    debug: ^4.3.4
-    tslib: ^2.4.0
-  bin:
-    bb.js: dest/node/main.js
-  checksum: 8e3551f059523d9494af4721a9219e2c6e63c8ed1df447a2d0daa9f8526a794758ae708bd1d9c9b1fbfb89c56dc867d9f0b87250dbabfcde23ec02dabbb5a32a
+  checksum: c78c22c3b8c43e0010a43145f973489aa7da9fcf0b8527884107f1f34ac3ca5f5d4ab087d74ce50cb75d6dbaef88bfc693e23745282faa30b81dc78481c65874
   languageName: node
   linkType: hard
 
@@ -1365,113 +1351,57 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noir-lang/acvm_js@npm:0.43.0":
-  version: 0.43.0
-  resolution: "@noir-lang/acvm_js@npm:0.43.0"
-  checksum: da76e25770d77cde56b7d888db2b8ee55d364efb5a1042bfbdf92ae0be2554663acacd88d391afe49b370f628a3edaebf1d782b6ae64bc15031b7c643cf4d46a
+"@noir-lang/acvm_js@npm:0.39.0":
+  version: 0.39.0
+  resolution: "@noir-lang/acvm_js@npm:0.39.0"
+  checksum: 9a0eab90bf3526b658ddd9fe6a3ab95695ae071a15b24e085ddc44f5cc61a148b198ffde0f7c09b12e95a890d3c56a8224acde6ad5a8cda85b2aa06f7c38ddab
   languageName: node
   linkType: hard
 
-"@noir-lang/acvm_js@npm:0.44.0":
-  version: 0.44.0
-  resolution: "@noir-lang/acvm_js@npm:0.44.0"
-  checksum: 5a65bf4c5c72ed228969459d629c84774682783f17bcba6a12eaeb76142c37dbe02dac00b7e6e64e9bf175b1dc075dd3b106fb3dfeb7549f18c127ccdd8f4add
-  languageName: node
-  linkType: hard
-
-"@noir-lang/backend_barretenberg@npm:^0.27.0":
-  version: 0.27.0
-  resolution: "@noir-lang/backend_barretenberg@npm:0.27.0"
+"@noir-lang/backend_barretenberg@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@noir-lang/backend_barretenberg@npm:0.23.0"
   dependencies:
-    "@aztec/bb.js": 0.32.0
-    "@noir-lang/types": 0.27.0
+    "@aztec/bb.js": 0.19.0
+    "@noir-lang/types": 0.23.0
     fflate: ^0.8.0
-  checksum: a4a1b6fc3bd892844fefbaf2cb61e65e06cf45a786d2d0a21bf6e10031ea28743dd9861b38e432a275b3f68afe47b46323f88f13dcfb7522d8377adba7f21522
+  checksum: 55cfe20f278c6587fa0180aa1db65162dc3b26094c16177b17f69d1c7aa6b114ee511bd31264f613398ccc21165819b1cc1bf64ce2808f64b87e2bab83b01e76
   languageName: node
   linkType: hard
 
-"@noir-lang/backend_barretenberg@npm:^0.28.0":
-  version: 0.28.0
-  resolution: "@noir-lang/backend_barretenberg@npm:0.28.0"
+"@noir-lang/noir_js@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@noir-lang/noir_js@npm:0.23.0"
   dependencies:
-    "@aztec/bb.js": 0.35.1
-    "@noir-lang/types": 0.28.0
-    fflate: ^0.8.0
-  checksum: 07b9c44b03beac375b9fed87e0d2a0ab6418b173e5e9c5ce998bccad8cc8da7a13935a71a4bf09cf3b34b1915c4158979ee23c9868e950a9c3a7a8f62d27654d
+    "@noir-lang/acvm_js": 0.39.0
+    "@noir-lang/noirc_abi": 0.23.0
+    "@noir-lang/types": 0.23.0
+  checksum: abe23f15edb00af89f49df069a54dafab4889fe2b733733364bedea29f3b9b7af441016f47a368576658ddb67ec2de9ee5255249d7b4e3bbf1f4da005c59d1fd
   languageName: node
   linkType: hard
 
-"@noir-lang/noir_js@npm:^0.27.0":
-  version: 0.27.0
-  resolution: "@noir-lang/noir_js@npm:0.27.0"
+"@noir-lang/noir_wasm@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@noir-lang/noir_wasm@npm:0.23.0"
   dependencies:
-    "@noir-lang/acvm_js": 0.43.0
-    "@noir-lang/noirc_abi": 0.27.0
-    "@noir-lang/types": 0.27.0
-  checksum: 20208a7f852290cc33111b0f0d49ba2747f9d7dc09e7e4bcf24683a07f36ccee8ad6f244386cf28d6dd679c9d132e1790768ed33915d21936e59aa4876e473a5
-  languageName: node
-  linkType: hard
-
-"@noir-lang/noir_js@npm:^0.28.0":
-  version: 0.28.0
-  resolution: "@noir-lang/noir_js@npm:0.28.0"
-  dependencies:
-    "@noir-lang/acvm_js": 0.44.0
-    "@noir-lang/noirc_abi": 0.28.0
-    "@noir-lang/types": 0.28.0
-  checksum: f068bf1fc2316f58c0daf7bedbecd2a2d2b69a70bf542b9e936895ad122214de8dbc493bd2814df224cb768fde62d33696d8133d845a3f9c2031cf1719a69c21
-  languageName: node
-  linkType: hard
-
-"@noir-lang/noir_wasm@npm:^0.27.0":
-  version: 0.27.0
-  resolution: "@noir-lang/noir_wasm@npm:0.27.0"
-  dependencies:
-    "@noir-lang/types": 0.27.0
     pako: ^2.1.0
-  checksum: 982ebea6bc2aa2e2592aa52797a307a9045665141878a34599baca1319437f7f4c5bc960619e3526e7384c9362631f2eed621502c50a1a4f0dae70eb4a1e6c88
+  checksum: 19849817d95537acbc6d099211f712a49a4d6c565cf1e9d99d27481f201fa7c052c0c3e83239d8a324dc51e7951f794d9351196c4f1ba8902296063dbd405bcc
   languageName: node
   linkType: hard
 
-"@noir-lang/noir_wasm@npm:^0.28.0":
-  version: 0.28.0
-  resolution: "@noir-lang/noir_wasm@npm:0.28.0"
+"@noir-lang/noirc_abi@npm:0.23.0":
+  version: 0.23.0
+  resolution: "@noir-lang/noirc_abi@npm:0.23.0"
+  checksum: 2793e3b37d76ddad375d3efaa8bfbfdbb7828b6562c413f4df01ace2748e88dfeb8b66e75ac92b7d4e3b5a0d50f21064a3c692e901f3fc527b1c90163da16051
+  languageName: node
+  linkType: hard
+
+"@noir-lang/types@npm:0.23.0, @noir-lang/types@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "@noir-lang/types@npm:0.23.0"
   dependencies:
-    "@noir-lang/types": 0.28.0
-    pako: ^2.1.0
-  checksum: 14a3d0ddc89459341c228bcf85f98c04f5baee386acc21063aa8a841d402a340d43ab62ca848385a557ca343ac0f2e66acccdb0d50b51b65016c6025d05a5922
-  languageName: node
-  linkType: hard
-
-"@noir-lang/noirc_abi@npm:0.27.0":
-  version: 0.27.0
-  resolution: "@noir-lang/noirc_abi@npm:0.27.0"
-  dependencies:
-    "@noir-lang/types": 0.27.0
-  checksum: 3edf9da58ebc53dfe3ec3a0bc3cfebf0e02d72fcee367a7132ccc6e1b8f3040bdd4cdeb4f1fabc42cd6da2dc9d5a19c4b686c5f8394848a90fd526639fd96d0f
-  languageName: node
-  linkType: hard
-
-"@noir-lang/noirc_abi@npm:0.28.0":
-  version: 0.28.0
-  resolution: "@noir-lang/noirc_abi@npm:0.28.0"
-  dependencies:
-    "@noir-lang/types": 0.28.0
-  checksum: 13dde9f0407003b02015de4a48788e644fa606743b993d7538a901574b0bf21fac23247644768d9168e75de8b7a023b7adccbada455e80334840acc7aa6315a0
-  languageName: node
-  linkType: hard
-
-"@noir-lang/types@npm:0.27.0, @noir-lang/types@npm:^0.27.0":
-  version: 0.27.0
-  resolution: "@noir-lang/types@npm:0.27.0"
-  checksum: 39edc11e3c55c3322fbe84eace127f1702cdfb61c42bc6d2ace20de50fa156880e46aeb5a92f087dba85fc846814c080496193b18b763f129b034d7da8a59341
-  languageName: node
-  linkType: hard
-
-"@noir-lang/types@npm:0.28.0, @noir-lang/types@npm:^0.28.0":
-  version: 0.28.0
-  resolution: "@noir-lang/types@npm:0.28.0"
-  checksum: f9bb49855e06bb9839ad05c20364a7950cdbfb1a7d3f6030f9422cf181a80a35a93f8164d24c9b4a5128cb9caa45309b3181ba33a0c0a683db2f13c8ae6f2fc2
+    "@noir-lang/noirc_abi": 0.23.0
+  checksum: 2e61512bd6d082b704c9036d2802183d0eb758c030517c10fc352b580520f1c871a470d723bbdfb7ae4710205cd54162de31d1fdf64fb485a3917f776ba31254
   languageName: node
   linkType: hard
 
@@ -1779,10 +1709,10 @@ __metadata:
   resolution: "@se-2/foundry@workspace:packages/foundry"
   dependencies:
     "@noble/hashes": ^1.4.0
-    "@noir-lang/backend_barretenberg": ^0.27.0
-    "@noir-lang/noir_js": ^0.27.0
-    "@noir-lang/noir_wasm": ^0.27.0
-    "@noir-lang/types": ^0.27.0
+    "@noir-lang/backend_barretenberg": ^0.23.0
+    "@noir-lang/noir_js": ^0.23.0
+    "@noir-lang/noir_wasm": ^0.23.0
+    "@noir-lang/types": ^0.23.0
     "@typechain/ethers-v6": ^0.5.1
     "@types/prettier": 2
     "@types/qrcode": 1
@@ -1803,10 +1733,10 @@ __metadata:
   dependencies:
     "@heroicons/react": ~2.0.11
     "@noble/hashes": ^1.4.0
-    "@noir-lang/backend_barretenberg": ^0.28.0
-    "@noir-lang/noir_js": ^0.28.0
-    "@noir-lang/noir_wasm": ^0.28.0
-    "@noir-lang/types": ^0.28.0
+    "@noir-lang/backend_barretenberg": ^0.23.0
+    "@noir-lang/noir_js": ^0.23.0
+    "@noir-lang/noir_wasm": ^0.23.0
+    "@noir-lang/types": ^0.23.0
     "@rainbow-me/rainbowkit": ~2.0.2
     "@tanstack/react-query": ~5.28.6
     "@trivago/prettier-plugin-sort-imports": ~4.1.1
@@ -1838,6 +1768,7 @@ __metadata:
     react-dom: ~18.2.0
     react-hot-toast: ~2.4.0
     react-secure-storage: ^1.3.2
+    sass: ^1.75.0
     tailwindcss: ~3.4.3
     type-fest: ~4.6.0
     typescript: ~5.1.6
@@ -4182,7 +4113,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^3.5.3, chokidar@npm:^3.6.0":
+"chokidar@npm:>=3.0.0 <4.0.0, chokidar@npm:^3.5.3, chokidar@npm:^3.6.0":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
   dependencies:
@@ -6969,6 +6900,13 @@ __metadata:
   version: 5.3.1
   resolution: "ignore@npm:5.3.1"
   checksum: 71d7bb4c1dbe020f915fd881108cbe85a0db3d636a0ea3ba911393c53946711d13a9b1143c7e70db06d571a5822c0a324a6bcde5c9904e7ca5047f01f1bf8cd3
+  languageName: node
+  linkType: hard
+
+"immutable@npm:^4.0.0":
+  version: 4.3.5
+  resolution: "immutable@npm:4.3.5"
+  checksum: 0e25dd5c314421faede9e1122ab26cdb638cc3edc8678c4a75dee104279b12621a30c80a480fae7f68bc7e81672f1e672e454dc0fdc7e6cf0af10809348387b8
   languageName: node
   linkType: hard
 
@@ -10094,6 +10032,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sass@npm:^1.75.0":
+  version: 1.75.0
+  resolution: "sass@npm:1.75.0"
+  dependencies:
+    chokidar: ">=3.0.0 <4.0.0"
+    immutable: ^4.0.0
+    source-map-js: ">=0.6.2 <2.0.0"
+  bin:
+    sass: sass.js
+  checksum: bfb9f5ddb6a2e1fe0c1ba6191cdb17afa7b40c1eb892c7152f6a29ff2b06dc7a510bdb648f8cca0179dcb3965920ebeb8894f0710b0b450a99db563831345033
+  languageName: node
+  linkType: hard
+
 "scheduler@npm:^0.23.0, scheduler@npm:^0.23.2":
   version: 0.23.2
   resolution: "scheduler@npm:0.23.2"
@@ -10385,7 +10336,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-js@npm:^1.0.2, source-map-js@npm:^1.2.0":
+"source-map-js@npm:>=0.6.2 <2.0.0, source-map-js@npm:^1.0.2, source-map-js@npm:^1.2.0":
   version: 1.2.0
   resolution: "source-map-js@npm:1.2.0"
   checksum: 791a43306d9223792e84293b00458bf102a8946e7188f3db0e4e22d8d530b5f80a4ce468eb5ec0bf585443ad55ebbd630bf379c98db0b1f317fd902500217f97
