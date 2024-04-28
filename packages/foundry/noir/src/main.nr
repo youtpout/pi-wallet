@@ -24,6 +24,7 @@ fn main(
     receiver: pub Field,
     relayer: pub Field,
     is_deposit: pub [u8; 1],
+    approve: pub [u8; 1],
     // hash of call
     call: pub [u8; 32]
 ) {
@@ -39,6 +40,8 @@ fn main(
         let emptyCall :[u8; 32] = [0; 32];
         // we can't make call on deposit
         assert(emptyCall == call);
+        // no approve on deposit
+        assert(approve == [0]);
         // deposit add amount and substract relayer part
         newAmount = old_amount + amount - amount_relayer;
     } else {

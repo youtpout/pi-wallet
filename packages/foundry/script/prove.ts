@@ -87,6 +87,7 @@ const input = {
   receiver: 15,
   relayer: 0,
   is_deposit: [1],
+  approve: [0],
   // call is a sha256 hash of calldata
   call: Array(32).fill(0)
 };

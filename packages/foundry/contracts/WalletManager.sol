@@ -95,6 +95,7 @@ contract WalletManager is
             _relayer,
             msg.value,
             _amountRelayer,
+            false,
             _proof,
             emptyBytes
         );
@@ -145,6 +146,7 @@ contract WalletManager is
             _relayer,
             _amount,
             _amountRelayer,
+            false,
             _proof,
             emptyBytes
         );
@@ -263,14 +265,26 @@ contract WalletManager is
             }(_proofData.call);
             require(success, "STE");
         } else {
-            // pretransfer and call
-            TransferHelper.safeTransfer(
-                _proofData.token,
-                _proofData.receiver,
-                _proofData.amount
-            );
+            if (_proofData.approve) {
+                // approve so the smartcontract receiver will transfer from himself
+                IERC20(_proofData.token).approve(
+                    _proofData.receiver,
+                    _proofData.amount
+                );
+            } else {
+                // pretransfer and call
+                TransferHelper.safeTransfer(
+                    _proofData.token,
+                    _proofData.receiver,
+                    _proofData.amount
+                );
+            }
             (bool success, ) = _proofData.receiver.call(_proofData.call);
             require(success, "STE");
+            if (_proofData.approve) {
+                // remove allowance
+                IERC20(_proofData.token).approve(_proofData.receiver, 0);
+            }
         }
 
         _verifyProof(_proofData, false);
@@ -311,8 +325,9 @@ contract WalletManager is
         _publicInputs[99] = bytes32(uint256(uint160(_proofData.receiver)));
         _publicInputs[100] = bytes32(uint256(uint160(_proofData.relayer)));
         _publicInputs[101] = _isDeposit ? oneByte : zeroByte;
+        _publicInputs[102] = _proofData.approve ? oneByte : zeroByte;
         for (uint i = 0; i < 32; i++) {
-            uint256 index = i + 65;
+            uint256 index = i + 103;
             _publicInputs[index] = bytes32(uint256(uint8(_proofData.call[i])));
         }
 

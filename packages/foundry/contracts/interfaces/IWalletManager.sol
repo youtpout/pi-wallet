@@ -11,6 +11,7 @@ interface IWalletManager {
         address relayer;
         uint256 amount;
         uint256 amountRelayer;
+        bool approve;
         bytes proof;
         bytes call;
     }
