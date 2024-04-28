@@ -32,6 +32,18 @@ contract WalletManager is
     error CommitmentAlreadyUsed(bytes32 commitment);
     error NullifierAlreadyUsed(bytes32 nullifier);
 
+    enum ActionType {
+        Deposit,
+        Withdraw
+    }
+
+    event AddAction(
+        bytes32 indexed nullifier,
+        uint256 indexed leafIndex,
+        ProofData ProofData,
+        ActionType actionType
+    );
+
     // Constructor: Called once on contract deployment
     // Check packages/foundry/deploy/Deploy.s.sol
     constructor(
@@ -61,6 +73,9 @@ contract WalletManager is
         if (commitments[_commitment]) {
             revert CommitmentAlreadyUsed(_nullifier);
         }
+
+        nullifiers[_nullifier] = true;
+        commitments[_commitment] = true;
     }
 
     function depositErc20(
@@ -81,6 +96,8 @@ contract WalletManager is
         if (!isAuthorizedToken[_token]) {
             revert UnauthorizedToken(_token);
         }
+        nullifiers[_nullifier] = true;
+        commitments[_commitment] = true;
     }
 
     function transfer(ProofData calldata _proofData) external nonReentrant {
@@ -90,6 +107,8 @@ contract WalletManager is
         if (commitments[_proofData.commitment]) {
             revert CommitmentAlreadyUsed(_proofData.nullifier);
         }
+        nullifiers[_proofData.nullifier] = true;
+        commitments[_proofData.commitment] = true;
     }
 
     function swap(
@@ -108,5 +127,11 @@ contract WalletManager is
         if (commitments[_proofDataBack.commitment]) {
             revert CommitmentAlreadyUsed(_proofDataBack.commitment);
         }
+        nullifiers[_proofData.nullifier] = true;
+        commitments[_proofData.commitment] = true;
+        nullifiers[_proofDataBack.nullifier] = true;
+        commitments[_proofDataBack.commitment] = true;
     }
+
+    
 }
