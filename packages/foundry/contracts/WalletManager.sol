@@ -17,11 +17,13 @@ import "../noir/contract/circuits/plonk_vk.sol";
 contract WalletManager is IWalletManager {
     mapping(address => bool) public isAuthorizedToken;
     address public immutable owner;
+    UltraVerifier public immutable verifier;
 
     // Constructor: Called once on contract deployment
     // Check packages/foundry/deploy/Deploy.s.sol
-    constructor(address _owner) {
+    constructor(address _owner, UltraVerifier _verifier) {
         owner = _owner;
+        verifier = _verifier;
     }
 
     // Modifier: used to define a set of rules that must be met before or after a function is executed
@@ -37,7 +39,7 @@ contract WalletManager is IWalletManager {
     }
     function deposit(
         bytes32 _commitment,
-        bytes32 _unique,
+        bytes32 _nullifier,
         address _relayer,
         uint256 _amountRelayer,
         bytes calldata _proof
@@ -45,7 +47,7 @@ contract WalletManager is IWalletManager {
 
     function depositErc20(
         bytes32 _commitment,
-        bytes32 _unique,
+        bytes32 _nullifier,
         address _token,
         address _relayer,
         uint256 _amount,

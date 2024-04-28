@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.23;
 
 interface IWalletManager {
     struct ProofData {
         bytes32 _commitment;
-        bytes32 _unique;
+        bytes32 _nullifier;
         bytes32 _root;
         address _token;
         address _receiver;
@@ -17,7 +17,7 @@ interface IWalletManager {
 
     function deposit(
         bytes32 _commitment,
-        bytes32 _unique,
+        bytes32 _nullifier,
         address _relayer,
         uint256 _amountRelayer,
         bytes calldata _proof
@@ -25,7 +25,7 @@ interface IWalletManager {
 
     function depositErc20(
         bytes32 _commitment,
-        bytes32 _unique,
+        bytes32 _nullifier,
         address _token,
         address _relayer,
         uint256 _amount,

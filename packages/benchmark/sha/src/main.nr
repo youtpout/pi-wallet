@@ -37,3 +37,14 @@ fn test_hash() {
     println("hash result");
     println(res);
 }
+
+#[test]
+fn test_hash_zero() {
+    let x = [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ];
+    let res= std::hash::sha256(x);
+    println("hash two bytes32 of 0");
+    println(res);
+}
+
