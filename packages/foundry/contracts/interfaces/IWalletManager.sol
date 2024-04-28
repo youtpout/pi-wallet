@@ -3,16 +3,16 @@ pragma solidity ^0.8.23;
 
 interface IWalletManager {
     struct ProofData {
-        bytes32 _commitment;
-        bytes32 _nullifier;
-        bytes32 _root;
-        address _token;
-        address _receiver;
-        address _relayer;
-        uint256 _amount;
-        uint256 _amountRelayer;
-        bytes _proof;
-        bytes _call;
+        bytes32 commitment;
+        bytes32 nullifier;
+        bytes32 root;
+        address token;
+        address receiver;
+        address relayer;
+        uint256 amount;
+        uint256 amountRelayer;
+        bytes proof;
+        bytes call;
     }
 
     function deposit(

@@ -24,9 +24,13 @@ contract WalletManager is
     ReentrancyGuard
 {
     mapping(address => bool) public isAuthorizedToken;
-    mapping(bytes32 => bool) public nullifierHashes;
+    mapping(bytes32 => bool) public nullifiers;
     mapping(bytes32 => bool) public commitments;
     UltraVerifier public immutable verifier;
+
+    error UnauthorizedToken(address token);
+    error CommitmentAlreadyUsed(bytes32 commitment);
+    error NullifierAlreadyUsed(bytes32 nullifier);
 
     // Constructor: Called once on contract deployment
     // Check packages/foundry/deploy/Deploy.s.sol
@@ -50,7 +54,14 @@ contract WalletManager is
         address _relayer,
         uint256 _amountRelayer,
         bytes calldata _proof
-    ) external payable nonReentrant {}
+    ) external payable nonReentrant {
+        if (nullifiers[_nullifier]) {
+            revert NullifierAlreadyUsed(_nullifier);
+        }
+        if (commitments[_commitment]) {
+            revert CommitmentAlreadyUsed(_nullifier);
+        }
+    }
 
     function depositErc20(
         bytes32 _commitment,
@@ -60,12 +71,42 @@ contract WalletManager is
         uint256 _amount,
         uint256 _amountRelayer,
         bytes calldata _proof
-    ) external nonReentrant {}
+    ) external nonReentrant {
+        if (nullifiers[_nullifier]) {
+            revert NullifierAlreadyUsed(_nullifier);
+        }
+        if (commitments[_commitment]) {
+            revert CommitmentAlreadyUsed(_nullifier);
+        }
+        if (!isAuthorizedToken[_token]) {
+            revert UnauthorizedToken(_token);
+        }
+    }
 
-    function transfer(ProofData calldata _proofData) external nonReentrant {}
+    function transfer(ProofData calldata _proofData) external nonReentrant {
+        if (nullifiers[_proofData.nullifier]) {
+            revert NullifierAlreadyUsed(_proofData.nullifier);
+        }
+        if (commitments[_proofData.commitment]) {
+            revert CommitmentAlreadyUsed(_proofData.nullifier);
+        }
+    }
 
     function swap(
         ProofData calldata _proofData,
         ProofData calldata _proofDataBack
-    ) external nonReentrant {}
+    ) external nonReentrant {
+        if (nullifiers[_proofData.nullifier]) {
+            revert NullifierAlreadyUsed(_proofData.nullifier);
+        }
+        if (nullifiers[_proofDataBack.nullifier]) {
+            revert NullifierAlreadyUsed(_proofDataBack.nullifier);
+        }
+        if (commitments[_proofData.commitment]) {
+            revert CommitmentAlreadyUsed(_proofData.commitment);
+        }
+        if (commitments[_proofDataBack.commitment]) {
+            revert CommitmentAlreadyUsed(_proofDataBack.commitment);
+        }
+    }
 }
