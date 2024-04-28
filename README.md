@@ -1,10 +1,10 @@
 # PI Wallet
 
-A private wallet built with noir on scroll
-
 This private wallet project aims to preserve the anonymity of the user when interacting on the scroll blockchain.
 
 Ultimately, users will be able to perform the same actions as a conventional wallet, while retaining their anonymity. All users interactions will pass through the same smartcontract.
+
+This project is scaffold with Scaffold Eth2, use noir as proof system, thegraph to index data, Sindri to generate proof faster, and the solidity smartcontract are deployed on the incredible Scroll blockchain.
 
 # 🏗 Scaffold-ETH 2
 

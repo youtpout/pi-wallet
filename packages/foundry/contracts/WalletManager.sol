@@ -133,5 +133,5 @@ contract WalletManager is
         commitments[_proofDataBack.commitment] = true;
     }
 
-    
+    function _deposit() private {}
 }
