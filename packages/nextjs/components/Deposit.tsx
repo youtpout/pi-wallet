@@ -56,71 +56,68 @@ export const Deposit = () => {
 
 
     const depositEth = async () => {
-        const amountWei = parseEther(input.amount.toString());
-
-        const wallet = new ethers.Wallet(account);
-        console.log(wallet);
-        const { x: datax, y: datay } = pubKeyFromWallet(wallet);
-        const amount = bigintToBytes32(amountWei);
-        const amountByte = bigintToArray(amountWei);
-        const index = numberToArray(1);
-        const token = numberToArray(0);
-        const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(Array.from(amountByte));
-        const unique_array = datax.concat(datay).concat(index).concat(token);
-        const hash = blake3(Uint8Array.from(arrayToHash));
-        const unique_hash = blake3(Uint8Array.from(unique_array));
-        const signature = wallet.signingKey.sign(hash);
-        const bytes_sign = getBytesSign(signature);
-        const new_leaf = blake3(Uint8Array.from(bytes_sign));
-        const signature_unique = wallet.signingKey.sign(unique_hash);
-        const bytes_sign_unique = getBytesSign(signature_unique);
-        const unique = blake3(Uint8Array.from(bytes_sign_unique));
-
-        const data = {
-            signature: bytes_sign,
-            signature_unique: bytes_sign_unique,
-            old_signature: bytes_sign_unique,
-            pub_key_x: Array.from(datax),
-            pub_key_y: Array.from(datay),
-            old_amount: 0,
-            // size 16 bigger 
-            witnesses: Array(16).fill(Array(32).fill(0)),
-            leaf_index: 0,
-            action_index: 1,
-            token: 0,
-            // unique need to store stoken, action by token, to retrieve data from wallet
-            unique: Array.from(unique),
-            // new leaf act as nullifer
-            new_leaf: Array.from(new_leaf),
-            merkle_root: Array(32).fill(0),
-            amount,
-            amount_relayer: 0,
-            receiver: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
-            relayer: 0,
-            is_deposit: [1],
-            approve: [0],
-            // call is a sha256 hash of calldata
-            call: Array(32).fill(0)
-        };
-
         try {
-            console.log('logs', 'Generating proof... ✅');
-            console.time("prove");
-            console.log(data);
-            const proof = await noir?.generateFinalProof(data);
-            console.timeEnd("prove");
-            console.log('logs', 'Verifying proof... ⌛');
-            const verification = await noir?.verifyFinalProof(proof!);
-            if (verification) {
-                console.log('logs', 'Proof verified... ✅');
-            } else {
-                console.log('logs', 'Proof verification failed... 🟥');
-            }
+            const amountWei = parseEther(input.amount.toString());
+
+            const wallet = new ethers.Wallet(account);
+            console.log(wallet);
+            const { x: datax, y: datay } = pubKeyFromWallet(wallet);
+            const amount = bigintToBytes32(amountWei);
+            const amountByte = bigintToArray(amountWei);
+            const index = numberToArray(1);
+            const token = numberToArray(0);
+            const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(Array.from(amountByte));
+            const unique_array = datax.concat(datay).concat(index).concat(token);
+            const hash = blake3(Uint8Array.from(arrayToHash));
+            const unique_hash = blake3(Uint8Array.from(unique_array));
+            const signature = wallet.signingKey.sign(hash);
+            const bytes_sign = getBytesSign(signature);
+            const new_leaf = blake3(Uint8Array.from(bytes_sign));
+            const signature_unique = wallet.signingKey.sign(unique_hash);
+            const bytes_sign_unique = getBytesSign(signature_unique);
+            const unique = blake3(Uint8Array.from(bytes_sign_unique));
+
+            const data = {
+                signature: bytes_sign,
+                signature_unique: bytes_sign_unique,
+                old_signature: bytes_sign_unique,
+                pub_key_x: Array.from(datax),
+                pub_key_y: Array.from(datay),
+                old_amount: 0,
+                // size 16 bigger 
+                witnesses: Array(16).fill(Array(32).fill(0)),
+                leaf_index: 0,
+                action_index: 1,
+                token: 0,
+                // unique need to store stoken, action by token, to retrieve data from wallet
+                unique: Array.from(unique),
+                // new leaf act as nullifer
+                new_leaf: Array.from(new_leaf),
+                merkle_root: Array(32).fill(0),
+                amount,
+                amount_relayer: 0,
+                receiver: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+                relayer: 0,
+                is_deposit: [1],
+                approve: [0],
+                // call is a sha256 hash of calldata
+                call: Array(32).fill(0)
+            };
+
+            const generateProof = await fetch("/api/sindri", {
+                body: JSON.stringify(data),
+                method: 'POST',
+                cache: "no-cache",
+                headers: {
+                    "Content-Type": "application/json",
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+            const resultProof = await generateProof.json();
+            const proof = resultProof.proof;
+            console.log("resultProof", resultProof);
         } catch (error) {
             console.error("error proof", error);
-        }
-        finally {
-            // process.exit();
         }
 
     };
