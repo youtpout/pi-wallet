@@ -13,9 +13,47 @@ contract WalletManagerTest is Test {
     address bob = makeAddr("Bob");
     address charlie = makeAddr("Charlie");
     address daniel = makeAddr("Daniel");
+    bytes proofBytes;
 
     function setUp() public {
         walletManager = new WalletManager(bob);
+        console.log("contract address %s", address(walletManager));
+        string memory proofFilePath = "./noir/proofs/circuits.proof";
+        string memory proof = vm.readLine(proofFilePath);
+        proofBytes = vm.parseBytes(proof);
+        // console.log("proof size %s", proofBytes.length);
+    }
+
+    function testDeposit() public {
+        deal(alice, 1 ether);
+
+        vm.startPrank(alice);
+        bytes32 root = walletManager.getLastRoot();
+        console.log("before root");
+        console.logBytes32(root);
+
+        bytes32 leaf = 0xc0ac121a19818ca8bf168bc0c16d112a14e6517975070054584a7a61e5f88ca8;
+        bytes32 nullifier = 0xb14bf28bf8b32749e4e56585fef382de3e7e0c3ab620755700a9ee62e5125415;
+
+        address relayer = address(0);
+        uint256 amountRelayer = 0;
+        uint256 amountDeposit = 0.01 ether;
+
+        walletManager.deposit{value: amountDeposit}(
+            leaf,
+            nullifier,
+            root,
+            relayer,
+            amountRelayer,
+            proofBytes
+        );
+
+        bytes32 rootAfter = walletManager.getLastRoot();
+        console.log("Last root");
+        console.logBytes32(rootAfter);
+        vm.stopPrank();
+        // alice deposit 0.01 ether in contract
+        assertEq(alice.balance, 0.99 ether);
     }
 
     function testSha() public {

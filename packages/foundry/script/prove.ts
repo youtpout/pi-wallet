@@ -44,39 +44,21 @@ getCircuit().then(piCircuit => {
   // amount of 0.01 eth
   const amountWei = parseEther("0.01");
   const amount = bigintToArray(amountWei);
-  console.log("amountBytes32", bigintToBytes32(amountWei));
-  console.log("amount", amount);
   const token = numberToArray(0);
-
   const index = numberToArray(1);
-  console.log("index", index);
-
   const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(amount);
   const unique_array = datax.concat(datay).concat(index).concat(token);
-
-  console.log("array to hash", arrayToHash);
-  console.dir(arrayToHash, { 'maxArrayLength': null });
   const hash = blake3(Uint8Array.from(arrayToHash));
   const unique_hash = blake3(Uint8Array.from(unique_array));
-  console.log("hash", hash);
-
   const signature = wallet.signingKey.sign(hash);
   const bytes_sign = getBytesSign(signature);
   const new_leaf = blake3(Uint8Array.from(bytes_sign));
-  console.log("signature", bytes_sign);
-
   const signature_unique = wallet.signingKey.sign(unique_hash);
   const bytes_sign_unique = getBytesSign(signature_unique);
   const unique = blake3(Uint8Array.from(bytes_sign_unique));
-  console.log("signature_unique", bytes_sign_unique);
-
-  console.log("new_leaf", Array.from(new_leaf));
-  console.log("unique", Array.from(unique));
-
-  console.log("old_signature", Array(64).fill(0));
+  const root = "0xd49a7502ffcfb0340b1d7885688500ca308161a7f96b62df9d083b71fcc8f2bb";
 
   const addr = ethers.recoverAddress(hash, signature);
-  console.log("addr", addr);
 
   //console.dir(Array(32).fill(Array(32).fill(0)), { 'maxArrayLength': null });
   //console.dir(Array(2048).fill(0), { 'maxArrayLength': null });
@@ -97,11 +79,11 @@ getCircuit().then(piCircuit => {
     unique: Array.from(unique),
     // new leaf act as nullifer
     new_leaf: Array.from(new_leaf),
-    merkle_root: Array(32).fill(0),
+    merkle_root: Array.from(getBytes(root)),
     amount: bigintToBytes32(amountWei),
     amount_relayer: 0,
-    receiver: 15,
-    relayer: 0,
+    receiver: "0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f",
+    relayer: ethers.ZeroAddress,
     is_deposit: [1],
     approve: [0],
     // call is a sha256 hash of calldata
@@ -109,6 +91,13 @@ getCircuit().then(piCircuit => {
   };
 
   console.dir(JSON.stringify(input), { 'maxArrayLength': null });
+
+  console.log("commitment", toHex(input.new_leaf));
+  console.log("nullifier", toHex(input.unique));
+  console.log("root", toHex(input.merkle_root));
+  console.log("relayer", input.relayer);
+  console.log("amountRelayer", input.amount_relayer);
+  console.log("amount eth", 0.01);
 
   async function prove() {
     try {
@@ -123,6 +112,7 @@ getCircuit().then(piCircuit => {
       } else {
         console.log('logs', 'Proof verification failed... 🟥');
       }
+
     } catch (error) {
       console.error("error proof", error);
     }
@@ -157,4 +147,8 @@ function numberToArray(num: number) {
 function bigintToArray(num: bigint) {
   let res = bigintToBytes32(num);
   return Array.from(getBytes(hexlify(res)));
+}
+
+function toHex(buffer: any) {
+  return Array.prototype.map.call(buffer, x => ('00' + x.toString(16)).slice(-2)).join('');
 }
