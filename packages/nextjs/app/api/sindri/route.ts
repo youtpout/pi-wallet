@@ -3,6 +3,7 @@ import sindri from 'sindri';
 import { toHex, zeroAddress, zeroHash } from "viem";
 import { WalletManager__factory } from "~~/typechain";
 import { IWalletManager } from "~~/typechain/WalletManager";
+import { bigintToBytes32 } from "~~/utils/converter";
 
 const feeEther = parseEther("0.003");
 // dai get 18 decimals too
@@ -38,14 +39,14 @@ export async function POST(
         const data = json.data;
         const proofStruct: IWalletManager.ProofDataStruct = {
             amount: contractData.amount,
-            amountRelayer: feeEther,
+            amountRelayer: bigintToBytes32(feeEther),
             approve: false,
             call: contractData.call,
             commitment: toHex(data.new_leaf),
             nullifier: toHex(data.unique),
-            root: data.root,
+            root: contractData.root,
             relayer: signer.address,
-            proof: proof,
+            proof: "0x" + proof,
             receiver: data.receiver,
             token: zeroAddress
         };

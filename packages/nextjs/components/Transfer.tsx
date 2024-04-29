@@ -44,7 +44,7 @@ export const Transfer = ({ eventList }) => {
 
     useEffect(() => {
         initNoir();
-        getRelayer();
+        getRelayer().then(r => setRelayer(r));
     }, []);
 
     const initNoir = async () => {
@@ -59,8 +59,8 @@ export const Transfer = ({ eventList }) => {
 
     const getRelayer = async () => {
         const call = await fetch("/api/sindri");
-        const result = await call.json();
-        console.log("relayer", result);
+        const result = await call.json();        
+        return result;       
     }
 
 
@@ -76,14 +76,18 @@ export const Transfer = ({ eventList }) => {
             const root = await contract.getLastRoot();
             const token = zeroAddress;
             const call = Array.from(sha256(new Uint8Array(32)));
-            const data = await generateProofInput(account, eventList, amountWei, token, root, input.receiver, false, false, call);
+            const addrRelayer = relayer.relayer;
+            console.log("relayer", relayer);
+            console.log("addr", addrRelayer);
+            const data = await generateProofInput(account, eventList, amountWei, token, root, input.receiver, false, false, call, addrRelayer, BigInt(relayer.feeEther));
 
             const callData = {
                 useRelayer: true,
                 data,
                 contractData: {
                     amount: toHex(amountWei),
-                    call: zeroHash
+                    call: zeroHash,
+                    root: root
                 }
             }
 
