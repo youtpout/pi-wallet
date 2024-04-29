@@ -25,7 +25,7 @@ contract WalletManager is
     mapping(address => bool) public isAuthorizedToken;
     mapping(bytes32 => bool) public nullifiers;
     mapping(bytes32 => bool) public commitments;
-    
+
     UltraVerifier public immutable verifier;
 
     bytes32 constant zeroByte = bytes32(uint256(0));
@@ -42,21 +42,20 @@ contract WalletManager is
     enum ActionType {
         // match is deposit 0 for withdraw, 1 for deposit
         Withdraw,
-        Deposit        
+        Deposit
     }
 
     event AddAction(
         bytes32 indexed nullifier,
+        bytes32 indexed commitment,
         uint256 indexed leafIndex,
-        ProofData ProofData,
+        ProofData proofData,
         ActionType actionType
     );
 
     // Constructor: Called once on contract deployment
     // Check packages/foundry/deploy/Deploy.s.sol
-    constructor(
-        address _owner
-    ) MerkleTreeWithHistory(16) Ownable(_owner) {
+    constructor(address _owner) MerkleTreeWithHistory(16) Ownable(_owner) {
         verifier = new UltraVerifier();
     }
 
@@ -254,6 +253,7 @@ contract WalletManager is
         uint256 insertedIndex = _insert(_proofData.commitment);
         emit AddAction(
             _proofData.nullifier,
+            _proofData.commitment,
             insertedIndex,
             _proofData,
             ActionType.Deposit
@@ -311,6 +311,7 @@ contract WalletManager is
         uint256 insertedIndex = _insert(_proofData.commitment);
         emit AddAction(
             _proofData.nullifier,
+            _proofData.commitment,
             insertedIndex,
             _proofData,
             ActionType.Withdraw

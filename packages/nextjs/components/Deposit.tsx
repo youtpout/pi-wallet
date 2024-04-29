@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
+import { Signature, SigningKey, Wallet, ethers, getBytes, parseEther, sha256, toBeArray, zeroPadBytes } from "ethers";
 import { AccountContext } from "./Body";
 import circuit from '../../../packages/foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
@@ -10,6 +10,8 @@ import { BarretenbergBackend, CompiledCircuit } from '@noir-lang/backend_barrete
 import { Noir } from '@noir-lang/noir_js';
 import { amountToBytes, bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet, toHex } from "~~/utils/converter";
 import { WalletManager__factory } from "~~/typechain";
+import { MerkleTree } from 'merkletreejs';
+import { Exception } from "sass";
 
 export const Deposit = ({ eventList }) => {
     const [input, setInput] = useState({ amount: 0.01, server: true });
@@ -57,6 +59,43 @@ export const Deposit = ({ eventList }) => {
         console.log("relayer", result);
     }
 
+    const getLeaves = async () => {
+        const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+        const contract = WalletManager__factory.connect(contractAddress, provider);
+        const filter = contract.filters.AddAction();
+        const addAction = await contract.queryFilter(filter);
+        let result = [];
+        if (addAction?.length > 0) {
+            for (let i = 0; i < addAction.length; i++) {
+                const element = addAction[i];
+                result.push(element.args);
+            }
+        }
+        return result;
+    };
+
+    function bufferToBigInt(buffer: Buffer, start = 0, end = buffer.length) {
+        const bufferAsHexString = buffer.slice(start, end).toString("hex");
+        return BigInt(`0x${bufferAsHexString}`);
+    }
+
+    const fnConc = (x: Buffer[]) => {
+        const hexa = x.map(z => {
+            if (z.indexOf('0x') > -1) {
+                return z;
+            }
+            return bufferToBigInt(z);
+        })
+        return hexa;
+    };
+
+    const fnHash = (x: Buffer[]) => {
+        console.log("x", x);
+        const hash = sha256(Array.from(x.flatMap()));
+        const res = "0x" + BigInt(hash).toString(16).padStart(64, 0);
+        //console.log("res", res);
+        return res;
+    };
 
     const depositEth = async () => {
         try {
@@ -103,7 +142,7 @@ export const Deposit = ({ eventList }) => {
             const root = await contract.getLastRoot();
 
             let old_signature = bytes_sign_unique;
-            let old_leaf;
+            let oldLeaf: any;
             if (actionIndex > 1) {
                 const oldAmountByte = bigintToArray(old_amount);
                 const oldIndex = numberToArray(actionIndex - 1);
@@ -111,21 +150,50 @@ export const Deposit = ({ eventList }) => {
                 const oldHash = blake3(Uint8Array.from(oldArray));
                 const oldSignature = wallet.signingKey.sign(oldHash);
                 old_signature = getBytesSign(oldSignature);
-                old_leaf = blake3(Uint8Array.from(getBytesSign(oldSignature)));
+                oldLeaf = blake3(Uint8Array.from(getBytesSign(oldSignature)));
+
+                var leafs = await getLeaves();
+                console.log("leafs", leafs);
+                var arrayLeafs = Array(65536).fill(0);
+                for (let j = 0; j < leafs.length; j++) {
+                    const element = leafs[j].proofData;
+                    console.log("element", element);
+                    arrayLeafs[j] = element;
+                }
+                console.log("arrayLeafs", arrayLeafs);
+                var leafInfo = leafs.find(x => x.commitment === oldLeaf);
+                if (!leafInfo) {
+                    throw Error("No commitment found for this secret/amount pair");
+                }
+                var leafIndex = "0x" + BigInt(leafInfo.leafIndex).toString(16);
+
+                const merkleTree = new MerkleTree(arrayLeafs, fnHash, {
+                    sort: false,
+                    hashLeaves: false,
+                    sortPairs: false,
+                    sortLeaves: false,
+                    concatenator: fnConc
+                });
+                const nwitnessMerkle = merkleTree.getHexProof(oldLeaf);
+
+                const rootJs = merkleTree.getHexRoot();
+                console.log("rootJs", rootJs);
+
+                console.log("witness", nwitnessMerkle);
             }
 
 
             const data = {
                 signature: bytes_sign,
                 signature_unique: bytes_sign_unique,
-                old_signature: bytes_sign_unique,
+                old_signature: old_signature,
                 pub_key_x: Array.from(datax),
                 pub_key_y: Array.from(datay),
                 old_amount: 0,
                 // size 16 bigger 
                 witnesses: Array(16).fill(Array(32).fill(0)),
                 leaf_index: 0,
-                action_index: 1,
+                action_index: actionIndex,
                 token: 0,
                 // unique need to store stoken, action by token, to retrieve data from wallet
                 unique: Array.from(unique),
@@ -147,6 +215,8 @@ export const Deposit = ({ eventList }) => {
                 data
             }
 
+            //return;
+
             const generateProof = await fetch("/api/sindri", {
                 body: JSON.stringify(callData),
                 method: 'POST',
@@ -157,15 +227,20 @@ export const Deposit = ({ eventList }) => {
                 },
             });
             const resultProof = await generateProof.json();
-            const proof = "0x" + resultProof.proof.proof;
+            if (resultProof?.proof.proof) {
+                const proof = "0x" + resultProof.proof.proof;
+                console.log("proof", proof);
+                console.log("root", root);
 
-            console.log("proof", proof);
-            console.log("root", root);
+                setMessage("Create transaction");
+                const tx = await contract.deposit(new_leaf, unique, root, ethers.ZeroAddress, BigInt(0), proof, { value: amountWei });
+                setMessage("Transaction sent");
+                console.log("tx", tx.hash);
+            }
+            else {
+                throw resultProof;
+            }
 
-            setMessage("Create transaction");
-            const tx = await contract.deposit(new_leaf, unique, root, ethers.ZeroAddress, BigInt(0), proof, { value: amountWei });
-            setMessage("Transaction sent");
-            console.log("tx", tx.hash);
             //console.log("resultProof", resultProof);
         } catch (error) {
             setMessage("Error check console");

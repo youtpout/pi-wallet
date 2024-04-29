@@ -72,7 +72,7 @@ export const AccountInfo = ({ setEvenList }) => {
                     } else {
                         const data = addAction[0];
                         eventList.push(data);
-                        const proofData = data.args.ProofData;
+                        const proofData = data.args.proofData;
                         if (data.args.actionType === BigInt(1)) {
                             // deposit
                             amount = amount + proofData.amount - proofData.amountRelayer;

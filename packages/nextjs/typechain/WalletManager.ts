@@ -234,20 +234,23 @@ export interface WalletManagerInterface extends Interface {
 export namespace AddActionEvent {
   export type InputTuple = [
     nullifier: BytesLike,
+    commitment: BytesLike,
     leafIndex: BigNumberish,
-    ProofData: IWalletManager.ProofDataStruct,
+    proofData: IWalletManager.ProofDataStruct,
     actionType: BigNumberish
   ];
   export type OutputTuple = [
     nullifier: string,
+    commitment: string,
     leafIndex: bigint,
-    ProofData: IWalletManager.ProofDataStructOutput,
+    proofData: IWalletManager.ProofDataStructOutput,
     actionType: bigint
   ];
   export interface OutputObject {
     nullifier: string;
+    commitment: string;
     leafIndex: bigint;
-    ProofData: IWalletManager.ProofDataStructOutput;
+    proofData: IWalletManager.ProofDataStructOutput;
     actionType: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -519,7 +522,7 @@ export interface WalletManager extends BaseContract {
   >;
 
   filters: {
-    "AddAction(bytes32,uint256,tuple,uint8)": TypedContractEvent<
+    "AddAction(bytes32,bytes32,uint256,tuple,uint8)": TypedContractEvent<
       AddActionEvent.InputTuple,
       AddActionEvent.OutputTuple,
       AddActionEvent.OutputObject
