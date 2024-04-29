@@ -37,6 +37,7 @@
     "react-hot-toast": "~2.4.0",
     "react-secure-storage": "^1.3.2",
     "sass": "^1.75.0",
+    "sindri": "^0.0.1-alpha.44",
     "use-debounce": "~8.0.4",
     "usehooks-ts": "2.13.0",
     "viem": "2.8.16",
