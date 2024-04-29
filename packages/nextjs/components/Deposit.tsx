@@ -135,8 +135,10 @@ export const Deposit = ({ eventList }) => {
                 }
             }
 
+            let newAmount = amountWei + old_amount;
+
             let index = numberToArray(actionIndex);
-            const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(Array.from(amountByte));
+            const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(Array.from(bigintToArray(newAmount)));
             const unique_array = datax.concat(datay).concat(index).concat(token);
             const hash = blake3(Uint8Array.from(arrayToHash));
             const unique_hash = blake3(Uint8Array.from(unique_array));
@@ -148,8 +150,11 @@ export const Deposit = ({ eventList }) => {
             const unique = blake3(Uint8Array.from(bytes_sign_unique));
             const root = await contract.getLastRoot();
 
+            let witnesses = Array(16).fill(Array(32).fill(0));
+
             let old_signature = bytes_sign_unique;
             let oldLeaf: any;
+            let leafIndex = ethers.ZeroHash;
             if (actionIndex > 1) {
                 const oldAmountByte = bigintToArray(old_amount);
                 const oldIndex = numberToArray(actionIndex - 1);
@@ -169,12 +174,11 @@ export const Deposit = ({ eventList }) => {
                     console.log("element", element);
                     arrayLeafs[j] = element.commitment;
                 }
-                console.log("arrayLeafs", arrayLeafs);
                 var leafInfo = leafs.find(x => x.commitment.toLowerCase().indexOf(hexOldLeaf.toLowerCase()) > -1);
                 if (!leafInfo) {
                     throw Error("No commitment found for this secret/amount pair");
                 }
-                var leafIndex = "0x" + BigInt(leafInfo.leafIndex).toString(16);
+                leafIndex = "0x" + BigInt(leafInfo.leafIndex).toString(16);
 
                 const merkleTree = new MerkleTree(arrayLeafs, sha256, {
                     sort: false,
@@ -182,12 +186,11 @@ export const Deposit = ({ eventList }) => {
                     sortPairs: false,
                     sortLeaves: false
                 });
-                const nwitnessMerkle = merkleTree.getHexProof(hexOldLeaf);
+                witnesses = merkleTree.getHexProof(hexOldLeaf).map(x => Array.from(getBytes(x)));
 
                 const rootJs = merkleTree.getHexRoot();
                 console.log("rootJs", rootJs);
                 console.log("root contract", root);
-                console.log("witness", nwitnessMerkle);
             }
 
 
@@ -197,10 +200,10 @@ export const Deposit = ({ eventList }) => {
                 old_signature: old_signature,
                 pub_key_x: Array.from(datax),
                 pub_key_y: Array.from(datay),
-                old_amount: 0,
+                old_amount: bigintToBytes32(old_amount),
                 // size 16 bigger 
-                witnesses: Array(16).fill(Array(32).fill(0)),
-                leaf_index: 0,
+                witnesses: witnesses,
+                leaf_index: leafIndex,
                 action_index: actionIndex,
                 token: 0,
                 // unique need to store stoken, action by token, to retrieve data from wallet
@@ -223,7 +226,7 @@ export const Deposit = ({ eventList }) => {
                 data
             }
 
-            return;
+            console.log("input", JSON.stringify(data));
 
             const generateProof = await fetch("/api/sindri", {
                 body: JSON.stringify(callData),
@@ -235,7 +238,7 @@ export const Deposit = ({ eventList }) => {
                 },
             });
             const resultProof = await generateProof.json();
-            if (resultProof?.proof.proof) {
+            if (resultProof?.proof?.proof) {
                 const proof = "0x" + resultProof.proof.proof;
                 console.log("proof", proof);
                 console.log("root", root);
