@@ -11,7 +11,7 @@ import { BarretenbergBackend, CompiledCircuit } from '@noir-lang/backend_barrete
 import { Noir } from '@noir-lang/noir_js';
 import { amountToBytes, bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet } from "~~/utils/converter";
 import { WalletManager__factory } from "~~/typechain";
-import { toHex, zeroAddress } from "viem";
+import { toHex, zeroAddress, zeroHash } from "viem";
 import { MerkleTree } from 'merkletreejs';
 import { Exception } from "sass";
 import { bytesToBigInt } from "viem";
@@ -75,8 +75,8 @@ export const Transfer = ({ eventList }) => {
             const contract = WalletManager__factory.connect(contractAddress, signer);
             const root = await contract.getLastRoot();
             const token = zeroAddress;
-            const call = Array.from(sha256(ZeroHash));
-            const data = await generateProofInput(account, eventList, provider, amountWei, token, root, contractAddress, false, false, call);
+            const call = Array.from(sha256(new Uint8Array(32)));
+            const data = await generateProofInput(account, eventList, provider, amountWei, token, root, input.receiver, false, false, call);
 
             const callData = {
                 useRelayer: false,
@@ -103,9 +103,9 @@ export const Transfer = ({ eventList }) => {
                 setMessage("Create transaction");
                 const proofStruct: IWalletManager.ProofDataStruct = {
                     amount: amountWei,
-                    amountRelayer: BigInt(0),
+                    amountRelayer: zeroHash,
                     approve: false,
-                    call: ZeroHash,
+                    call: zeroHash,
                     commitment: toHex(data.new_leaf),
                     nullifier: toHex(data.unique),
                     root: root,

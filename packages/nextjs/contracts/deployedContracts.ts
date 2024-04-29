@@ -758,27 +758,7 @@ const deployedContracts = {
           ],
         },
       ],
-      inheritedFunctions: {
-        ROOT_HISTORY_SIZE: "contracts/MerkleTreeWithHistory.sol",
-        currentRootIndex: "contracts/MerkleTreeWithHistory.sol",
-        filledSubtrees: "contracts/MerkleTreeWithHistory.sol",
-        getLastRoot: "contracts/MerkleTreeWithHistory.sol",
-        isKnownRoot: "contracts/MerkleTreeWithHistory.sol",
-        levels: "contracts/MerkleTreeWithHistory.sol",
-        nextIndex: "contracts/MerkleTreeWithHistory.sol",
-        roots: "contracts/MerkleTreeWithHistory.sol",
-        deposit: "contracts/interfaces/IWalletManager.sol",
-        depositErc20: "contracts/interfaces/IWalletManager.sol",
-        isAuthorizedToken: "contracts/interfaces/IWalletManager.sol",
-        setAuthorizedToken: "contracts/interfaces/IWalletManager.sol",
-        swap: "contracts/interfaces/IWalletManager.sol",
-        transfer: "contracts/interfaces/IWalletManager.sol",
-        owner: "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        renounceOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-        transferOwnership:
-          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
-      },
+      inheritedFunctions: {},
     },
   },
 } as const;
