@@ -59,6 +59,12 @@ contract WalletManagerTest is Test {
         assertEq(expected, result);
     }
 
+    function testEncode() public {
+        uint256 amount = 0.01 ether;
+        console.log("result");
+        console.logBytes32(bytes32(amount));
+    }
+
     // https://ethereum.stackexchange.com/questions/51229/how-to-convert-bytes-to-uint-in-solidity
     function bytesToUint(uint8[32] memory b) internal pure returns (uint256) {
         uint256 number;

@@ -56,12 +56,12 @@ export const Deposit = () => {
         const amount = Array.from(numToUint8Array(10000000000000000));
         const toto = zeroPadBytes("0x" + amountWei.toString(16), 32);
 
-        const tets2 = getBytes(zeroPadBytes("0x" + amountWei.toString(16), 32));
-        const test = hexToBytes(amountWei);
+        const amountByte = getBytes("0x000000000000000000000000000000000000000000000000002386f26fc10000");
+        const test = hexToBytes("0x000000000000000000000000000000000000000000000000002386f26fc10000");
         let amountIn = "0x" + amountWei.toString(16);
         const token = ArrayFromNumber(0);
         const index = ArrayFromNumber(1);
-        const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(amount);
+        const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(Array.from(amountByte));
         const unique_array = datax.concat(datay).concat(index).concat(token);
         const hash = blake3(Uint8Array.from(arrayToHash));
         const unique_hash = blake3(Uint8Array.from(unique_array));
@@ -89,7 +89,7 @@ export const Deposit = () => {
             // new leaf act as nullifer
             new_leaf: Array.from(new_leaf),
             merkle_root: Array(32).fill(0),
-            amount: 10000000000000000,
+            amount: "0x000000000000000000000000000000000000000000000000002386f26fc10000",
             amount_relayer: 0,
             receiver: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
             relayer: 0,

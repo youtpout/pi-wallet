@@ -48,3 +48,19 @@ fn test_hash_zero() {
     println(res);
 }
 
+#[test]
+fn test_bytes() {
+    let x = 0x000000000000000000000000000000000000000000000000002386f26fc10000;
+    let res= field_to_bytes(x);
+    println("field_to_bytes 0.01 eth");
+    println(res);
+}
+
+fn field_to_bytes(input: Field) -> [u8; 32] {
+    let input_to_bytes:[u8] = input.to_le_bytes(32);
+    let mut result :[u8;32] = [0; 32];
+    for i in 0..32 {
+        result[i] = input_to_bytes[i];
+    }
+    result
+}

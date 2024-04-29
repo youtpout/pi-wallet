@@ -16,8 +16,7 @@ export function numToUint8Array(num: number) {
     return arr;
 }
 
-export function hexToBytes(big: bigint) {
-    const hexString = new big.toString(16);
+export function hexToBytes(hexString: string) {
     let arr = new Uint8Array(32);
 
     if (hexString.length % 2 !== 0) {
