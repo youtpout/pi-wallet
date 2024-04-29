@@ -1,12 +1,13 @@
 
-import { ethers, getBytes, zeroPadValue } from "ethers";
+import { JsonRpcProvider, ethers, getBytes, zeroPadValue } from "ethers";
 import { blake3 } from '@noble/hashes/blake3';
 import { bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet, toHex } from "~~/utils/converter";
 import { WalletManager__factory } from "~~/typechain";
 import MerkleTree from "merkletreejs";
 import { sha256 } from "@noble/hashes/sha256";
 
-export async function generateProofInput(account: any, eventList: [], provider: any, amountWei: BigInt, token: string, root: string, receiver: string, isDeposit: boolean, approve: boolean = false, call: any = Array(32).fill(0)): Promise<any> {
+export async function generateProofInput(account: any, eventList: [], amountWei: BigInt, token: string, root: string, receiver: string, isDeposit: boolean, approve: boolean = false, call: any = Array(32).fill(0)): Promise<any> {
+    const provider = new JsonRpcProvider("https://rpc.ankr.com/scroll_sepolia_testnet");
 
     const wallet = new ethers.Wallet(account);
     const { x: datax, y: datay } = pubKeyFromWallet(wallet);
@@ -119,10 +120,10 @@ export async function generateProofInput(account: any, eventList: [], provider: 
 
 
 export async function getLeaves(provider: any) {
-    const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+    const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
     const contract = WalletManager__factory.connect(contractAddress, provider);
     const filter = contract.filters.AddAction();
-    const addAction = await contract.queryFilter(filter);
+    const addAction = await contract.queryFilter(filter, 4159545);
     let result = [];
     if (addAction?.length > 0) {
         for (let i = 0; i < addAction.length; i++) {

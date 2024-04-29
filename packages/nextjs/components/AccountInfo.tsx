@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ethers, formatEther, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
+import { JsonRpcProvider, Signature, SigningKey, Wallet, ethers, formatEther, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
 import { AccountContext } from "./Body";
 import circuit from '../../foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
@@ -17,7 +17,7 @@ export const AccountInfo = ({ setEvenList }) => {
     const [address, setAddress] = useState("");
     const [nbEvent, setNbEvent] = useState(0);
     const signer = useEthersSigner();
-    const provider = useEthersProvider();
+    const provider = new JsonRpcProvider("https://rpc.ankr.com/scroll_sepolia_testnet");
     const account = useContext(AccountContext);
 
     useEffect(() => {
@@ -30,7 +30,7 @@ export const AccountInfo = ({ setEvenList }) => {
 
     const listenEvent = async () => {
         try {
-            const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+            const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
             const contract = WalletManager__factory.connect(contractAddress, provider);
 
             contract.on(contract.getEvent("AddAction"), () => {
@@ -46,7 +46,7 @@ export const AccountInfo = ({ setEvenList }) => {
     const getAmount = async () => {
         try {
             if (account) {
-                const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+                const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
                 const contract = WalletManager__factory.connect(contractAddress, provider);
                 const wallet = new ethers.Wallet(account);
                 setAddress(wallet.address);
@@ -66,7 +66,7 @@ export const AccountInfo = ({ setEvenList }) => {
                     const unique = blake3(Uint8Array.from(bytes_sign_unique));
 
                     const filter = contract.filters.AddAction(unique);
-                    const addAction = await contract.queryFilter(filter);
+                    const addAction = await contract.queryFilter(filter, 4159545);
                     if (!addAction || !addAction.length) {
                         console.log("break", index);
                         break;
@@ -90,7 +90,7 @@ export const AccountInfo = ({ setEvenList }) => {
             }
 
         } catch (error) {
-            console.error("error proof", error);
+            console.error("error get amount", error);
         }
 
     };

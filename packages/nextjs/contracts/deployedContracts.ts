@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  534351: {
     WalletManager: {
-      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      address: "0xE9e734AB5215BcBff64838878d0cAA2483ED679c",
       abi: [
         {
           type: "constructor",

@@ -9,6 +9,22 @@
 
 body {
   min-height: 100vh;
+  position: relative;
+}
+
+.body-background {
+  /* background-color: rgba(255, 255, 255, 0.99);*/
+  position: absolute;
+  background-color: #041730;
+  background-image: url("/back.jpeg");
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.02;
 }
 
 h1,

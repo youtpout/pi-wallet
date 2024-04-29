@@ -71,12 +71,12 @@ export const Deposit = ({ eventList }) => {
             setMessage("Generate Proof");
             const amountWei = parseEther(input.amount.toString());
 
-            const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+            const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
             const contract = WalletManager__factory.connect(contractAddress, signer);
             const root = await contract.getLastRoot();
             const token = zeroAddress;
 
-            const data = await generateProofInput(account, eventList, provider, amountWei, token, root, contractAddress, true);
+            const data = await generateProofInput(account, eventList, amountWei, token, root, contractAddress, true);
 
             const callData = {
                 useRelayer: false,
