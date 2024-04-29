@@ -63,6 +63,14 @@ contract WalletManagerTest is Test {
         uint256 amount = 0.01 ether;
         console.log("result");
         console.logBytes32(bytes32(amount));
+        amount = 100;
+        console.log("hundred");
+        console.logBytes32(bytes32(amount));
+        console.logBytes(_toBytes(bytes32(amount)));
+    }
+
+    function _toBytes(bytes32 _data) private pure returns (bytes memory) {
+        return abi.encodePacked(_data);
     }
 
     // https://ethereum.stackexchange.com/questions/51229/how-to-convert-bytes-to-uint-in-solidity

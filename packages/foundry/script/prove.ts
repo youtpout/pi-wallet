@@ -1,9 +1,10 @@
-import { Signature, ethers, Wallet, BaseWallet, SigningKey, Contract } from "ethers";
+import { Signature, ethers, Wallet, BaseWallet, SigningKey, Contract, hexlify, getBytes, parseEther } from "ethers";
 import { BarretenbergBackend, CompiledCircuit } from '@noir-lang/backend_barretenberg';
 import { Noir } from '@noir-lang/noir_js';
 import { compile, createFileManager } from '@noir-lang/noir_wasm';
 import { blake3 } from '@noble/hashes/blake3';
 import { join, resolve } from 'path';
+import { hexToBytes } from "@noble/hashes/utils";
 
 
 async function getCircuit() {
@@ -40,11 +41,13 @@ getCircuit().then(piCircuit => {
   let datay = Array.from(ethers.getBytes(ethers.zeroPadValue("0x" + pub_key_y, 32)));
   console.log("datay", datay);
 
-  const amount = Array.from(numToUint8Array(10000000000000000));
+  // amount of 0.01 eth
+  const amountWei = parseEther("0.01");
+  const amount = bigintToArray(amountWei);
   console.log("amount", amount);
-  const token = Array.from(numToUint8Array(0));
+  const token = numberToArray(0);
 
-  const index = Array.from(numToUint8Array(1));
+  const index = numberToArray(1);
   console.log("index", index);
 
   const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(amount);
@@ -94,7 +97,7 @@ getCircuit().then(piCircuit => {
     // new leaf act as nullifer
     new_leaf: Array.from(new_leaf),
     merkle_root: Array(32).fill(0),
-    amount: 10000000000000000,
+    amount: bigintToBytes32(amountWei),
     amount_relayer: 0,
     receiver: 15,
     relayer: 0,
@@ -124,22 +127,31 @@ getCircuit().then(piCircuit => {
       process.exit();
     }
   }
+
   prove().then();
 
 });
 
 
-function numToUint8Array(num) {
-  let arr = new Uint8Array(32);
-
-  for (let i = 0; i < 32; i++) {
-    arr[i] = num % 256;
-    num = Math.floor(num / 256);
-  }
-
-  return arr;
-}
-
 function getBytesSign(signature: Signature) {
   return Array.from(ethers.getBytes(signature.r)).concat(Array.from(ethers.getBytes(signature.s)));
+}
+
+function numberToBytes32(num: number) {
+  return bigintToBytes32(BigInt(num));
+}
+
+function bigintToBytes32(num: bigint) {
+  const hexNumber = num.toString(16);
+  const prefix = hexNumber.length % 2 === 0 ? "0x" : "0x0";
+  return ethers.zeroPadValue(prefix + hexNumber, 32);
+}
+
+function numberToArray(num: number) {
+  return bigintToArray(BigInt(num));
+}
+
+function bigintToArray(num: bigint) {
+  let res = bigintToBytes32(num);
+  return Array.from(getBytes(hexlify(res)));
 }
