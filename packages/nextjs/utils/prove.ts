@@ -6,7 +6,9 @@ import { WalletManager__factory } from "~~/typechain";
 import MerkleTree from "merkletreejs";
 import { sha256 } from "@noble/hashes/sha256";
 
-export async function generateProofInput(account: any, eventList: [], amountWei: BigInt, token: string, root: string, receiver: string, isDeposit: boolean, approve: boolean = false, call: any = Array(32).fill(0)): Promise<any> {
+export async function generateProofInput(account: any, eventList: [], amountWei: BigInt, token: string,
+    root: string, receiver: string, isDeposit: boolean,
+    approve: boolean = false, call: any = Array(32).fill(0), relayer = ethers.ZeroAddress, amountRelayer = BigInt(0)): Promise<any> {
     const provider = new JsonRpcProvider("https://rpc.ankr.com/scroll_sepolia_testnet");
 
     const wallet = new ethers.Wallet(account);
@@ -30,7 +32,7 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
         }
     }
 
-    let newAmount = isDeposit ? amountWei + old_amount : old_amount - amountWei;
+    let newAmount = isDeposit ? amountWei + old_amount - amountRelayer : old_amount - amountWei - amountRelayer;
     const amountByte = bigintToArray(newAmount);
     let index = numberToArray(actionIndex);
     const arrayToHash = datax.concat(datay).concat(index).concat(tokenArr).concat(Array.from(amountByte));
@@ -106,9 +108,9 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
         new_leaf: Array.from(new_leaf),
         merkle_root: Array.from(getBytes(root)),
         amount,
-        amount_relayer: 0,
+        amount_relayer: bigintToBytes32(amountRelayer),
         receiver: receiver,
-        relayer: ethers.ZeroAddress,
+        relayer: relayer,
         is_deposit: isDeposit ? [1] : [0],
         approve: approve ? [1] : [0],
         // call is a sha256 hash of calldata

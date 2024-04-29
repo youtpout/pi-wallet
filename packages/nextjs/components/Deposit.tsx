@@ -101,7 +101,7 @@ export const Deposit = ({ eventList }) => {
                 console.log("root", root);
 
                 setMessage("Create transaction");
-                const tx = await contract.deposit(toHex(data.new_leaf), toHex(data.unique), root, ethers.ZeroAddress, BigInt(0), proof, { value: amountWei });
+                const tx = await contract.deposit(toHex(data.new_leaf), toHex(data.unique), root, ethers.ZeroAddress, ethers.ZeroHash, proof, { value: amountWei });
                 setMessage("Transaction sent");
                 console.log("tx", tx.hash);
             }

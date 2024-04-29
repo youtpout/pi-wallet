@@ -79,8 +79,12 @@ export const Transfer = ({ eventList }) => {
             const data = await generateProofInput(account, eventList, amountWei, token, root, input.receiver, false, false, call);
 
             const callData = {
-                useRelayer: false,
-                data
+                useRelayer: true,
+                data,
+                contractData: {
+                    amount: toHex(amountWei),
+                    call: zeroHash
+                }
             }
 
             console.log("input", JSON.stringify(data));
@@ -96,28 +100,7 @@ export const Transfer = ({ eventList }) => {
             });
             const resultProof = await generateProof.json();
             if (resultProof?.proof?.proof) {
-                const proof = "0x" + resultProof.proof.proof;
-                console.log("proof", proof);
-                console.log("root", root);
-
-                setMessage("Create transaction");
-                const proofStruct: IWalletManager.ProofDataStruct = {
-                    amount: amountWei,
-                    amountRelayer: zeroHash,
-                    approve: false,
-                    call: zeroHash,
-                    commitment: toHex(data.new_leaf),
-                    nullifier: toHex(data.unique),
-                    root: root,
-                    relayer: zeroAddress,
-                    proof: proof,
-                    receiver: input.receiver,
-                    token: zeroAddress
-                };
-                console.log("proofstruct", proofStruct);
-                const tx = await contract.transfer(proofStruct);
                 setMessage("Transaction sent");
-                console.log("tx", tx.hash);
             }
             else {
                 throw resultProof;
