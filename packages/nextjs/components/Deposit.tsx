@@ -8,7 +8,7 @@ import circuit from '../../../packages/foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
 import { BarretenbergBackend, CompiledCircuit } from '@noir-lang/backend_barretenberg';
 import { Noir } from '@noir-lang/noir_js';
-import { ArrayFromNumber, amountToBytes, getBytesSign, hashSignature, hexToBytes, numToUint8Array, pubKeyFromWallet } from "~~/utils/converter";
+import { amountToBytes, bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet } from "~~/utils/converter";
 
 export const Deposit = () => {
     const [input, setInput] = useState({ amount: 0.01, server: true });
@@ -38,7 +38,7 @@ export const Deposit = () => {
 
     const initNoir = async () => {
         // @ts-ignore
-        const backend = new BarretenbergBackend(circuit);
+        const backend = new BarretenbergBackend(circuit, { threads: 64 });
         setBackend(backend);
 
         // @ts-ignore
@@ -53,14 +53,10 @@ export const Deposit = () => {
         const wallet = new ethers.Wallet(account);
         console.log(wallet);
         const { x: datax, y: datay } = pubKeyFromWallet(wallet);
-        const amount = Array.from(numToUint8Array(10000000000000000));
-        const toto = zeroPadBytes("0x" + amountWei.toString(16), 32);
-
-        const amountByte = getBytes("0x000000000000000000000000000000000000000000000000002386f26fc10000");
-        const test = hexToBytes("0x000000000000000000000000000000000000000000000000002386f26fc10000");
-        let amountIn = "0x" + amountWei.toString(16);
-        const token = ArrayFromNumber(0);
-        const index = ArrayFromNumber(1);
+        const amount = bigintToBytes32(amountWei);
+        const amountByte = bigintToArray(amountWei);
+        const index = numberToArray(1);
+        const token = numberToArray(0);
         const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(Array.from(amountByte));
         const unique_array = datax.concat(datay).concat(index).concat(token);
         const hash = blake3(Uint8Array.from(arrayToHash));
@@ -89,7 +85,7 @@ export const Deposit = () => {
             // new leaf act as nullifer
             new_leaf: Array.from(new_leaf),
             merkle_root: Array(32).fill(0),
-            amount: "0x000000000000000000000000000000000000000000000000002386f26fc10000",
+            amount,
             amount_relayer: 0,
             receiver: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
             relayer: 0,

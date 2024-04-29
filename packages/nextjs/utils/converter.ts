@@ -1,35 +1,24 @@
-import { BigNumberish, Signature, Wallet, ethers, getUint, parseEther, toBeArray } from "ethers";
+import { BigNumberish, Signature, Wallet, ethers, getBytes, getUint, hexlify, parseEther, toBeArray } from "ethers";
 import { blake3 } from '@noble/hashes/blake3';
 
-export function ArrayFromNumber(num: number) {
-    return Array.from(numToUint8Array(num));
+export function numberToBytes32(num: number) {
+    return bigintToBytes32(BigInt(num));
 }
 
-export function numToUint8Array(num: number) {
-    let arr = new Uint8Array(32);
-
-    for (let i = 0; i < 32; i++) {
-        arr[i] = num % 256;
-        num = Math.floor(num / 256);
-    }
-
-    return arr;
+export function bigintToBytes32(num: BigInt) {
+    const hexNumber = num.toString(16);
+    const prefix = hexNumber.length % 2 === 0 ? "0x" : "0x0";
+    return ethers.zeroPadValue(prefix + hexNumber, 32);
 }
 
-export function hexToBytes(hexString: string) {
-    let arr = new Uint8Array(32);
-
-    if (hexString.length % 2 !== 0) {
-        throw "Must have an even number of hex digits to convert to bytes";
-    }
-    var numBytes = hexString.length / 2;
-    var byteArray = new Uint8Array(numBytes);
-    for (var i = 0; i < numBytes; i++) {
-        byteArray[i] = parseInt(hexString.substr(i * 2, 2), 16);
-    }
-    return byteArray;
+export function numberToArray(num: number) {
+    return bigintToArray(BigInt(num));
 }
 
+export function bigintToArray(num: BigInt) {
+    let res = bigintToBytes32(num);
+    return Array.from(getBytes(hexlify(res)));
+}
 
 
 export function hashSignature(signature: Signature) {
