@@ -1,20 +1,19 @@
 
-import { ethers, getBytes } from "ethers";
+import { ethers, getBytes, zeroPadValue } from "ethers";
 import { blake3 } from '@noble/hashes/blake3';
 import { bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet, toHex } from "~~/utils/converter";
 import { WalletManager__factory } from "~~/typechain";
 import MerkleTree from "merkletreejs";
 import { sha256 } from "@noble/hashes/sha256";
 
-export async function generateProofInput(account: any, eventList: [], provider: any, amountWei: BigInt, token: BigInt, root: string, receiver: string, isDeposit: boolean, approve: boolean = false, call: any = Array(32).fill(0)): Promise<any> {
+export async function generateProofInput(account: any, eventList: [], provider: any, amountWei: BigInt, token: string, root: string, receiver: string, isDeposit: boolean, approve: boolean = false, call: any = Array(32).fill(0)): Promise<any> {
 
     const wallet = new ethers.Wallet(account);
     const { x: datax, y: datay } = pubKeyFromWallet(wallet);
     const amount = bigintToBytes32(amountWei);
-    const amountByte = bigintToArray(amountWei);
     let actionIndex = 1;
     let old_amount = BigInt(0);
-    const tokenArr = numberToArray(0);
+    const tokenArr = Array.from(getBytes(zeroPadValue(token, 32)));
     if (eventList?.length > 0) {
         actionIndex = actionIndex + eventList.length;
         for (let i = 0; i < eventList.length; i++) {
@@ -30,10 +29,10 @@ export async function generateProofInput(account: any, eventList: [], provider: 
         }
     }
 
-    let newAmount = amountWei + old_amount;
-
+    let newAmount = isDeposit ? amountWei + old_amount : old_amount - amountWei;
+    const amountByte = bigintToArray(newAmount);
     let index = numberToArray(actionIndex);
-    const arrayToHash = datax.concat(datay).concat(index).concat(tokenArr).concat(Array.from(bigintToArray(newAmount)));
+    const arrayToHash = datax.concat(datay).concat(index).concat(tokenArr).concat(Array.from(amountByte));
     const unique_array = datax.concat(datay).concat(index).concat(tokenArr);
     const hash = blake3(Uint8Array.from(arrayToHash));
     const unique_hash = blake3(Uint8Array.from(unique_array));
@@ -99,7 +98,7 @@ export async function generateProofInput(account: any, eventList: [], provider: 
         witnesses: witnesses,
         leaf_index: leafIndex,
         action_index: actionIndex,
-        token: 0,
+        token: token,
         // unique need to store stoken, action by token, to retrieve data from wallet
         unique: Array.from(unique),
         // new leaf act as nullifer
@@ -109,10 +108,10 @@ export async function generateProofInput(account: any, eventList: [], provider: 
         amount_relayer: 0,
         receiver: receiver,
         relayer: ethers.ZeroAddress,
-        is_deposit: [1],
-        approve: [0],
+        is_deposit: isDeposit ? [1] : [0],
+        approve: approve ? [1] : [0],
         // call is a sha256 hash of calldata
-        call: Array(32).fill(0)
+        call: call
     };
 
     return data;

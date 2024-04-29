@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
+import { Signature, SigningKey, Wallet, ZeroHash, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
 import { AccountContext } from "./Body";
 import circuit from '../../../packages/foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
@@ -16,9 +16,10 @@ import { MerkleTree } from 'merkletreejs';
 import { Exception } from "sass";
 import { bytesToBigInt } from "viem";
 import { generateProofInput } from "~~/utils/prove";
+import { IWalletManager } from "~~/typechain/WalletManager";
 
-export const Deposit = ({ eventList }) => {
-    const [input, setInput] = useState({ amount: 0.01, server: true });
+export const Transfer = ({ eventList }) => {
+    const [input, setInput] = useState({ amount: 0.01, server: true, receiver: "" });
     const [depositing, setDepositing] = useState<boolean>(false);
     const [noir, setNoir] = useState<Noir | null>(null);
     const [backend, setBackend] = useState<BarretenbergBackend | null>(null);
@@ -39,7 +40,6 @@ export const Deposit = ({ eventList }) => {
     const handleCheck = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target) setInput({ ...input, [e.target.name]: e.target.checked });
     };
-
 
 
     useEffect(() => {
@@ -65,7 +65,7 @@ export const Deposit = ({ eventList }) => {
 
 
 
-    const depositEth = async () => {
+    const transferEth = async () => {
         try {
             setDepositing(true);
             setMessage("Generate Proof");
@@ -75,8 +75,8 @@ export const Deposit = ({ eventList }) => {
             const contract = WalletManager__factory.connect(contractAddress, signer);
             const root = await contract.getLastRoot();
             const token = zeroAddress;
-
-            const data = await generateProofInput(account, eventList, provider, amountWei, token, root, contractAddress, true);
+            const call = Array.from(sha256(ZeroHash));
+            const data = await generateProofInput(account, eventList, provider, amountWei, token, root, contractAddress, false, false, call);
 
             const callData = {
                 useRelayer: false,
@@ -101,7 +101,21 @@ export const Deposit = ({ eventList }) => {
                 console.log("root", root);
 
                 setMessage("Create transaction");
-                const tx = await contract.deposit(toHex(data.new_leaf), toHex(data.unique), root, ethers.ZeroAddress, BigInt(0), proof, { value: amountWei });
+                const proofStruct: IWalletManager.ProofDataStruct = {
+                    amount: amountWei,
+                    amountRelayer: BigInt(0),
+                    approve: false,
+                    call: ZeroHash,
+                    commitment: toHex(data.new_leaf),
+                    nullifier: toHex(data.unique),
+                    root: root,
+                    relayer: zeroAddress,
+                    proof: proof,
+                    receiver: input.receiver,
+                    token: zeroAddress
+                };
+                console.log("proofstruct", proofStruct);
+                const tx = await contract.transfer(proofStruct);
                 setMessage("Transaction sent");
                 console.log("tx", tx.hash);
             }
@@ -129,14 +143,14 @@ export const Deposit = ({ eventList }) => {
                 <span>Amount (ETH)</span>
                 <input className='input' name="amount" type={'number'} onChange={handleChange} value={input.amount} />
             </div>
-            {/* <div className='tab-check'>
-                <input name="server" id='server' type={'checkbox'} onChange={handleCheck} checked={input.server} />
-                <label htmlFor="server" >Sindri's server proof</label>
-            </div> */}
+            <div className='tab-form'>
+                <span>Receiver</span>
+                <input className='input' name="receiver" type={'text'} onChange={handleChange} value={input.receiver} />
+            </div>
             {depositing ?
                 <button className='btn btn-secondary'><span className="loading loading-spinner loading-xs"></span>{message}</button>
                 :
-                <button className='btn btn-secondary' onClick={depositEth}>Deposit</button>}
+                <button className='btn btn-secondary' onClick={transferEth}>transfer</button>}
 
         </div>
     );

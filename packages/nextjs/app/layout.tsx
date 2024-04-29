@@ -58,7 +58,6 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             <BodyApp>
               {children}
             </BodyApp>
-
           </ScaffoldEthAppWithProviders>
         </ThemeProvider>
       </body>
