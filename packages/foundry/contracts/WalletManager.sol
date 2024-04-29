@@ -40,8 +40,9 @@ contract WalletManager is
     error InvalidRoot(bytes32 root);
 
     enum ActionType {
-        Deposit,
-        Withdraw
+        // match is deposit 0 for withdraw, 1 for deposit
+        Withdraw,
+        Deposit        
     }
 
     event AddAction(

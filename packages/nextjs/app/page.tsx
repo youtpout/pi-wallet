@@ -14,11 +14,12 @@ import { AccountInfo } from "~~/components/AccountInfo";
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const [tabName, setTabName] = useState("deposit");
+  const [eventList, setEvenList] = useState();
 
   return (
     <>
       <div className="flex flex-col flex-grow p-10">
-        <AccountInfo></AccountInfo>
+        <AccountInfo setEvenList={setEvenList}></AccountInfo>
         <div className="flex items-center justify-center  pt-10">
           <div className='tab-block'>
             <div className='tab-header'>
@@ -28,7 +29,7 @@ const Home: NextPage = () => {
             </div>
             <div className='tab-container'>
 
-              {tabName === "deposit" && <Deposit></Deposit>}
+              {tabName === "deposit" && <Deposit eventList={eventList}></Deposit>}
               {/* {tabName === "withdraw" &&
               <Withdraw></Withdraw>} */}
             </div>

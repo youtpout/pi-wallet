@@ -11,30 +11,48 @@ import { Noir } from '@noir-lang/noir_js';
 import { amountToBytes, bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet, toHex } from "~~/utils/converter";
 import { WalletManager__factory } from "~~/typechain";
 
-export const AccountInfo = () => {
+export const AccountInfo = ({ setEvenList }) => {
     const [input, setInput] = useState({ amount: 0.01, server: true });
     const [amountEth, setAmountEth] = useState("0");
     const [address, setAddress] = useState("");
+    const [nbEvent, setNbEvent] = useState(0);
     const signer = useEthersSigner();
     const provider = useEthersProvider();
     const account = useContext(AccountContext);
 
     useEffect(() => {
         getAmount().then();
+    }, [account, nbEvent]);
+
+    useEffect(() => {
+        listenEvent().then();
     }, [account]);
 
+    const listenEvent = async () => {
+        try {
+            const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+            const contract = WalletManager__factory.connect(contractAddress, provider);
+
+            contract.on(contract.getEvent("AddAction"), () => {
+                let nb = nbEvent + 1;
+                setNbEvent(nb);
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const getAmount = async () => {
         try {
             if (account) {
                 const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
                 const contract = WalletManager__factory.connect(contractAddress, provider);
-
                 const wallet = new ethers.Wallet(account);
                 setAddress(wallet.address);
                 const { x: datax, y: datay } = pubKeyFromWallet(wallet);
                 const token = numberToArray(0);
                 let amount = BigInt(0);
+                const eventList = [];
                 // we search only for the last 50 action for the moment (implement the graph)
                 for (let index = 0; index < 50; index++) {
                     const num = index + 1;
@@ -53,6 +71,7 @@ export const AccountInfo = () => {
                         break;
                     } else {
                         const data = addAction[0];
+                        eventList.push(data);
                         const proofData = data.args.ProofData;
                         if (data.args.actionType === BigInt(1)) {
                             // deposit
@@ -66,7 +85,7 @@ export const AccountInfo = () => {
                 }
 
                 setAmountEth(formatEther(amount));
-
+                setEvenList(eventList);
             }
 
         } catch (error) {

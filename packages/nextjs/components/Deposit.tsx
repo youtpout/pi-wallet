@@ -11,7 +11,7 @@ import { Noir } from '@noir-lang/noir_js';
 import { amountToBytes, bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet, toHex } from "~~/utils/converter";
 import { WalletManager__factory } from "~~/typechain";
 
-export const Deposit = () => {
+export const Deposit = ({ eventList }) => {
     const [input, setInput] = useState({ amount: 0.01, server: true });
     const [depositing, setDepositing] = useState<boolean>(false);
     const [noir, setNoir] = useState<Noir | null>(null);
@@ -71,8 +71,17 @@ export const Deposit = () => {
             const { x: datax, y: datay } = pubKeyFromWallet(wallet);
             const amount = bigintToBytes32(amountWei);
             const amountByte = bigintToArray(amountWei);
-            const index = numberToArray(1);
+            let index = numberToArray(1);
+            let old_amount = BigInt(0);
             const token = numberToArray(0);
+            if (eventList?.length > 0) {
+                index = numberToArray(eventList + 1);
+                for (let i = 0; i < eventList.length; i++) {
+                    const element = eventList[i];
+                    
+                }
+            }
+
             const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(Array.from(amountByte));
             const unique_array = datax.concat(datay).concat(index).concat(token);
             const hash = blake3(Uint8Array.from(arrayToHash));
@@ -135,8 +144,6 @@ export const Deposit = () => {
             setMessage("Create transaction");
             const tx = await contract.deposit(new_leaf, unique, root, ethers.ZeroAddress, BigInt(0), proof, { value: amountWei });
             setMessage("Transaction sent");
-            const res = await tx.wait();
-            setMessage("Transaction mined");
             console.log("tx", tx.hash);
             //console.log("resultProof", resultProof);
         } catch (error) {
