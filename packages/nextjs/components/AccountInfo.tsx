@@ -35,6 +35,7 @@ export const AccountInfo = ({ setEvenList }) => {
 
             contract.on(contract.getEvent("AddAction"), () => {
                 let nb = nbEvent + 1;
+                console.log("new event");
                 setNbEvent(nb);
             });
         } catch (error) {

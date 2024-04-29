@@ -1,78 +1,135 @@
 
-import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
-import circuit from '../../../packages/foundry/noir/target/circuits.json';
+import { ethers, getBytes } from "ethers";
 import { blake3 } from '@noble/hashes/blake3';
-import { amountToBytes, bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet } from "~~/utils/converter";
-import { AccountContext } from "~~/components/Body";
-import { Noir } from '@noir-lang/noir_js';
-import { ProofData } from '@noir-lang/types';
+import { bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet, toHex } from "~~/utils/converter";
+import { WalletManager__factory } from "~~/typechain";
+import MerkleTree from "merkletreejs";
+import { sha256 } from "@noble/hashes/sha256";
 
-export async function prove(noir: Noir, amount: BigInt, token: BigInt, receiver: string, isDeposit: boolean, approve: boolean = false, call: any = Array(32).fill(0)): Promise<ProofData> {
-    try {
-        const account = useContext(AccountContext);
-        const wallet = new ethers.Wallet(account);
-        const { x: datax, y: datay } = pubKeyFromWallet(wallet);
-        const amountIn = bigintToBytes32(amount);
-        const amountByte = bigintToArray(amount);
-        const tokenIn = bigintToBytes32(token);
-        const tokenByte = bigintToArray(token);
-        const index = numberToArray(1);
-        const arrayToHash = datax.concat(datay).concat(index).concat(tokenByte).concat(Array.from(amountByte));
-        const unique_array = datax.concat(datay).concat(index).concat(tokenByte);
-        const hash = blake3(Uint8Array.from(arrayToHash));
-        const unique_hash = blake3(Uint8Array.from(unique_array));
-        const signature = wallet.signingKey.sign(hash);
-        const bytes_sign = getBytesSign(signature);
-        const new_leaf = blake3(Uint8Array.from(bytes_sign));
-        const signature_unique = wallet.signingKey.sign(unique_hash);
-        const bytes_sign_unique = getBytesSign(signature_unique);
-        const unique = blake3(Uint8Array.from(bytes_sign_unique));
+export async function generateProofInput(account: any, eventList: [], provider: any, amountWei: BigInt, token: BigInt, root: string, receiver: string, isDeposit: boolean, approve: boolean = false, call: any = Array(32).fill(0)): Promise<any> {
 
-        const data = {
-            signature: bytes_sign,
-            signature_unique: bytes_sign_unique,
-            old_signature: bytes_sign_unique,
-            pub_key_x: Array.from(datax),
-            pub_key_y: Array.from(datay),
-            old_amount: 0,
-            // size 16 bigger 
-            witnesses: Array(16).fill(Array(32).fill(0)),
-            leaf_index: 0,
-            action_index: 1,
-            token: tokenIn,
-            // unique need to store stoken, action by token, to retrieve data from wallet
-            unique: Array.from(unique),
-            // new leaf act as nullifer
-            new_leaf: Array.from(new_leaf),
-            merkle_root: Array(32).fill(0),
-            amount: amountIn,
-            amount_relayer: 0,
-            receiver,
-            relayer: 0,
-            is_deposit: isDeposit ? [1] : [0],
-            approve: approve ? [1] : [0],
-            // call is a sha256 hash of calldata
-            call: call
-        };
-
-
-        console.log('logs', 'Generating proof... ✅');
-        console.time("prove");
-        console.log(data);
-        const proof = await noir?.generateFinalProof(data);
-        console.timeEnd("prove");
-        console.log('logs', 'Verifying proof... ⌛');
-        const verification = await noir?.verifyFinalProof(proof!);
-        if (verification) {
-            console.log('logs', 'Proof verified... ✅');
-        } else {
-            console.log('logs', 'Proof verification failed... 🟥');
+    const wallet = new ethers.Wallet(account);
+    const { x: datax, y: datay } = pubKeyFromWallet(wallet);
+    const amount = bigintToBytes32(amountWei);
+    const amountByte = bigintToArray(amountWei);
+    let actionIndex = 1;
+    let old_amount = BigInt(0);
+    const tokenArr = numberToArray(0);
+    if (eventList?.length > 0) {
+        actionIndex = actionIndex + eventList.length;
+        for (let i = 0; i < eventList.length; i++) {
+            const element = eventList[i].args;
+            const proofData = element.proofData;
+            if (element.actionType === BigInt(1)) {
+                // deposit
+                old_amount = old_amount + proofData.amount - proofData.amountRelayer;
+            } else {
+                //withdraw
+                old_amount = old_amount - proofData.amount - proofData.amountRelayer;
+            }
         }
-        return proof;
-    } catch (error) {
-        console.error("error proof", error);
-        throw error;
     }
-} 
+
+    let newAmount = amountWei + old_amount;
+
+    let index = numberToArray(actionIndex);
+    const arrayToHash = datax.concat(datay).concat(index).concat(tokenArr).concat(Array.from(bigintToArray(newAmount)));
+    const unique_array = datax.concat(datay).concat(index).concat(tokenArr);
+    const hash = blake3(Uint8Array.from(arrayToHash));
+    const unique_hash = blake3(Uint8Array.from(unique_array));
+    const signature = wallet.signingKey.sign(hash);
+    const bytes_sign = getBytesSign(signature);
+    const new_leaf = blake3(Uint8Array.from(bytes_sign));
+    const signature_unique = wallet.signingKey.sign(unique_hash);
+    const bytes_sign_unique = getBytesSign(signature_unique);
+    const unique = blake3(Uint8Array.from(bytes_sign_unique));
+
+    let witnesses = Array(16).fill(Array(32).fill(0));
+
+    let old_signature = bytes_sign_unique;
+    let oldLeaf: any;
+    let leafIndex = ethers.ZeroHash;
+    if (actionIndex > 1) {
+        const oldAmountByte = bigintToArray(old_amount);
+        const oldIndex = numberToArray(actionIndex - 1);
+        const oldArray = datax.concat(datay).concat(oldIndex).concat(tokenArr).concat(Array.from(oldAmountByte));
+        const oldHash = blake3(Uint8Array.from(oldArray));
+        const oldSignature = wallet.signingKey.sign(oldHash);
+        old_signature = getBytesSign(oldSignature);
+        oldLeaf = blake3(Uint8Array.from(getBytesSign(oldSignature)));
+
+        let hexOldLeaf = toHex(oldLeaf);
+
+        var leafs = await getLeaves(provider);
+        console.log("leafs", leafs);
+        var arrayLeafs = Array(65536).fill(ethers.ZeroHash);
+        for (let j = 0; j < leafs.length; j++) {
+            const element = leafs[j].proofData;
+            console.log("element", element);
+            arrayLeafs[j] = element.commitment;
+        }
+        var leafInfo = leafs.find(x => x.commitment.toLowerCase().indexOf(hexOldLeaf.toLowerCase()) > -1);
+        if (!leafInfo) {
+            throw Error("No commitment found for this secret/amount pair");
+        }
+        leafIndex = "0x" + BigInt(leafInfo.leafIndex).toString(16);
+
+        const merkleTree = new MerkleTree(arrayLeafs, sha256, {
+            sort: false,
+            hashLeaves: false,
+            sortPairs: false,
+            sortLeaves: false
+        });
+        witnesses = merkleTree.getHexProof(hexOldLeaf).map(x => Array.from(getBytes(x)));
+
+        const rootJs = merkleTree.getHexRoot();
+        console.log("rootJs", rootJs);
+        console.log("root contract", root);
+    }
+
+
+    const data = {
+        signature: bytes_sign,
+        signature_unique: bytes_sign_unique,
+        old_signature: old_signature,
+        pub_key_x: Array.from(datax),
+        pub_key_y: Array.from(datay),
+        old_amount: bigintToBytes32(old_amount),
+        // size 16 bigger 
+        witnesses: witnesses,
+        leaf_index: leafIndex,
+        action_index: actionIndex,
+        token: 0,
+        // unique need to store stoken, action by token, to retrieve data from wallet
+        unique: Array.from(unique),
+        // new leaf act as nullifer
+        new_leaf: Array.from(new_leaf),
+        merkle_root: Array.from(getBytes(root)),
+        amount,
+        amount_relayer: 0,
+        receiver: receiver,
+        relayer: ethers.ZeroAddress,
+        is_deposit: [1],
+        approve: [0],
+        // call is a sha256 hash of calldata
+        call: Array(32).fill(0)
+    };
+
+    return data;
+}
+
+
+export async function getLeaves(provider: any) {
+    const contractAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+    const contract = WalletManager__factory.connect(contractAddress, provider);
+    const filter = contract.filters.AddAction();
+    const addAction = await contract.queryFilter(filter);
+    let result = [];
+    if (addAction?.length > 0) {
+        for (let i = 0; i < addAction.length; i++) {
+            const element = addAction[i];
+            result.push(element.args);
+        }
+    }
+    return result;
+};
