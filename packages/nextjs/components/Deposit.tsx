@@ -2,16 +2,18 @@
 
 import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ethers, getBytes, parseEther, sha256, toBeArray, zeroPadBytes } from "ethers";
+import { Signature, SigningKey, Wallet, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
 import { AccountContext } from "./Body";
 import circuit from '../../../packages/foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
+import { sha256 } from '@noble/hashes/sha256';
 import { BarretenbergBackend, CompiledCircuit } from '@noir-lang/backend_barretenberg';
 import { Noir } from '@noir-lang/noir_js';
 import { amountToBytes, bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet, toHex } from "~~/utils/converter";
 import { WalletManager__factory } from "~~/typechain";
 import { MerkleTree } from 'merkletreejs';
 import { Exception } from "sass";
+import { bytesToBigInt } from "viem";
 
 export const Deposit = ({ eventList }) => {
     const [input, setInput] = useState({ amount: 0.01, server: true });
@@ -91,10 +93,15 @@ export const Deposit = ({ eventList }) => {
 
     const fnHash = (x: Buffer[]) => {
         console.log("x", x);
-        const hash = sha256(Array.from(x.flatMap()));
-        const res = "0x" + BigInt(hash).toString(16).padStart(64, 0);
+        let data = [];
+        for (let index = 0; index < x.length; index++) {
+            const element = x[index];
+            data = data.concat(bigintToArray(element));
+        }
+        const hash = sha256(Uint8Array.from(data));
+        //const res = "0x" + BigInt(hash).toString(16).padStart(64, 0);
         //console.log("res", res);
-        return res;
+        return bytesToBigInt(hash);
     };
 
     const depositEth = async () => {
@@ -117,7 +124,7 @@ export const Deposit = ({ eventList }) => {
                 actionIndex = actionIndex + eventList.length;
                 for (let i = 0; i < eventList.length; i++) {
                     const element = eventList[i].args;
-                    const proofData = element.ProofData;
+                    const proofData = element.proofData;
                     if (element.actionType === BigInt(1)) {
                         // deposit
                         old_amount = old_amount + proofData.amount - proofData.amountRelayer;
@@ -152,33 +159,34 @@ export const Deposit = ({ eventList }) => {
                 old_signature = getBytesSign(oldSignature);
                 oldLeaf = blake3(Uint8Array.from(getBytesSign(oldSignature)));
 
+                let hexOldLeaf = toHex(oldLeaf);
+
                 var leafs = await getLeaves();
                 console.log("leafs", leafs);
-                var arrayLeafs = Array(65536).fill(0);
+                var arrayLeafs = Array(65536).fill(ethers.ZeroHash);
                 for (let j = 0; j < leafs.length; j++) {
                     const element = leafs[j].proofData;
                     console.log("element", element);
-                    arrayLeafs[j] = element;
+                    arrayLeafs[j] = element.commitment;
                 }
                 console.log("arrayLeafs", arrayLeafs);
-                var leafInfo = leafs.find(x => x.commitment === oldLeaf);
+                var leafInfo = leafs.find(x => x.commitment.toLowerCase().indexOf(hexOldLeaf.toLowerCase()) > -1);
                 if (!leafInfo) {
                     throw Error("No commitment found for this secret/amount pair");
                 }
                 var leafIndex = "0x" + BigInt(leafInfo.leafIndex).toString(16);
 
-                const merkleTree = new MerkleTree(arrayLeafs, fnHash, {
+                const merkleTree = new MerkleTree(arrayLeafs, sha256, {
                     sort: false,
                     hashLeaves: false,
                     sortPairs: false,
-                    sortLeaves: false,
-                    concatenator: fnConc
+                    sortLeaves: false
                 });
-                const nwitnessMerkle = merkleTree.getHexProof(oldLeaf);
+                const nwitnessMerkle = merkleTree.getHexProof(hexOldLeaf);
 
                 const rootJs = merkleTree.getHexRoot();
                 console.log("rootJs", rootJs);
-
+                console.log("root contract", root);
                 console.log("witness", nwitnessMerkle);
             }
 
@@ -215,7 +223,7 @@ export const Deposit = ({ eventList }) => {
                 data
             }
 
-            //return;
+            return;
 
             const generateProof = await fetch("/api/sindri", {
                 body: JSON.stringify(callData),
