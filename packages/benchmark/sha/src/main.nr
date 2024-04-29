@@ -57,7 +57,7 @@ fn test_bytes() {
 }
 
 fn field_to_bytes(input: Field) -> [u8; 32] {
-    let input_to_bytes:[u8] = input.to_le_bytes(32);
+    let input_to_bytes:[u8] = input.to_be_bytes(32);
     let mut result :[u8;32] = [0; 32];
     for i in 0..32 {
         result[i] = input_to_bytes[i];

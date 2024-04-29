@@ -44,6 +44,7 @@ getCircuit().then(piCircuit => {
   // amount of 0.01 eth
   const amountWei = parseEther("0.01");
   const amount = bigintToArray(amountWei);
+  console.log("amountBytes32", bigintToBytes32(amountWei));
   console.log("amount", amount);
   const token = numberToArray(0);
 
@@ -106,6 +107,8 @@ getCircuit().then(piCircuit => {
     // call is a sha256 hash of calldata
     call: Array(32).fill(0)
   };
+
+  console.dir(JSON.stringify(input), { 'maxArrayLength': null });
 
   async function prove() {
     try {
