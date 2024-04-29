@@ -76,6 +76,7 @@ You can test that the Noir Solidity verifier contract works on a given chain by 
 
 ```bash
 forge script script/Verify.s.sol --rpc-url $RPC_ENDPOINT  --broadcast
+forge verify-contract --verifier-url https://api-sepolia.scrollscan.com/api 0xE9e734AB5215BcBff64838878d0cAA2483ED679c WalletManager --constructor-args $(cast abi-encode "constructor(address)" 0x7C1EE065849288F1776512e662059db38D22CA60) --force 
 ```
 
 If that doesn't work, you can add the network to Metamask and deploy and test via

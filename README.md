@@ -6,6 +6,14 @@ Ultimately, users will be able to perform the same actions as a conventional wal
 
 This project is scaffold with Scaffold Eth2, use noir as proof system, thegraph to index data, Sindri to generate proof faster, and the solidity smartcontract are deployed on the incredible Scroll blockchain.
 
+
+## Information
+
+[Contract on scrollscan](https://sepolia.scrollscan.com/address/0xe9e734ab5215bcbff64838878d0caa2483ed679c#code)
+
+Noir : circuit on /packages/foundry/noir
+Sindri : circuit id e1e6361a-dc7a-4c6d-8ebb-ca2c5027d6df, used on /packages/nextjs/app/api/sindri/route.ts
+
 # 🏗 Scaffold-ETH 2
 
 <h4 align="center">
