@@ -15,6 +15,7 @@ export const Deposit = () => {
     const [depositing, setDepositing] = useState<boolean>(false);
     const [noir, setNoir] = useState<Noir | null>(null);
     const [backend, setBackend] = useState<BarretenbergBackend | null>(null);
+    const [relayer, setRelayer] = useState({ relayer: "", feeEther: "", feeDai: "" });
 
     const signer = useEthersSigner();
     const provider = useEthersProvider();
@@ -34,6 +35,7 @@ export const Deposit = () => {
 
     useEffect(() => {
         initNoir();
+        getRelayer();
     }, []);
 
     const initNoir = async () => {
@@ -45,6 +47,12 @@ export const Deposit = () => {
         const noir = new Noir(circuit, backend);
         setNoir(noir);
     };
+
+    const getRelayer = async () => {
+        const call = await fetch("/api/sindri");
+        const result = await call.json();
+        console.log("relayer", result);
+    }
 
 
     const depositEth = async () => {
