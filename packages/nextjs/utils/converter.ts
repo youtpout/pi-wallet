@@ -20,6 +20,10 @@ export function bigintToArray(num: BigInt) {
     return Array.from(getBytes(hexlify(res)));
 }
 
+export function toHex(buffer: any) {
+    return Array.prototype.map.call(buffer, x => ('00' + x.toString(16)).slice(-2)).join('');
+}
+
 
 export function hashSignature(signature: Signature) {
     return blake3(Uint8Array.from(getBytesSign(signature)))

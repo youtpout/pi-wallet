@@ -320,7 +320,7 @@ contract WalletManager is
         ProofData memory _proofData,
         bool _isDeposit
     ) private view {
-        bytes32[] memory _publicInputs = new bytes32[](134);
+        bytes32[] memory _publicInputs = new bytes32[](135);
         _publicInputs[0] = bytes32(uint256(uint160(_proofData.token)));
         for (uint i = 0; i < 32; i++) {
             uint256 index = i + 1;

@@ -22,7 +22,7 @@ export async function POST(
     const client = sindri;
     const json = await req.json();
     client.authorize({ apiKey: process.env.SINDRI_API_KEY });
-    console.log("amount", json.amount);
-    const response = await client.proveCircuit("e1e6361a-dc7a-4c6d-8ebb-ca2c5027d6df", json, true);
+    console.log("useRelayer", json.useRelayer);
+    const response = await client.proveCircuit("e1e6361a-dc7a-4c6d-8ebb-ca2c5027d6df", json.data, true);
     return Response.json(response);
 }
