@@ -1,13 +1,12 @@
 import { ethers, parseEther } from "ethers";
-import { NextApiRequest } from "next";
 import sindri from 'sindri';
 
 const feeEther = parseEther("0.01");
 // dai get 18 decimals too
 const feeDai = parseEther("1");
 
-export function GET(
-    req: NextApiRequest,
+export async function GET(
+    req: Request
 ) {
     const relayerKey = process.env.RELAYER_PRIVATE_KEY!;
     const wallet = new ethers.Wallet(relayerKey);
@@ -16,7 +15,7 @@ export function GET(
 }
 
 export async function POST(
-    req: any,
+    req: Request
 ) {
     // Create an instance of the `SindriClient` class.
     const client = sindri;
