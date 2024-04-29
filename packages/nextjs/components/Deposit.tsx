@@ -71,17 +71,25 @@ export const Deposit = ({ eventList }) => {
             const { x: datax, y: datay } = pubKeyFromWallet(wallet);
             const amount = bigintToBytes32(amountWei);
             const amountByte = bigintToArray(amountWei);
-            let index = numberToArray(1);
+            let actionIndex = 1;
             let old_amount = BigInt(0);
             const token = numberToArray(0);
             if (eventList?.length > 0) {
-                index = numberToArray(eventList + 1);
+                actionIndex = actionIndex + eventList.length;
                 for (let i = 0; i < eventList.length; i++) {
-                    const element = eventList[i];
-                    
+                    const element = eventList[i].args;
+                    const proofData = element.ProofData;
+                    if (element.actionType === BigInt(1)) {
+                        // deposit
+                        old_amount = old_amount + proofData.amount - proofData.amountRelayer;
+                    } else {
+                        //withdraw
+                        old_amount = old_amount - proofData.amount - proofData.amountRelayer;
+                    }
                 }
             }
 
+            let index = numberToArray(actionIndex);
             const arrayToHash = datax.concat(datay).concat(index).concat(token).concat(Array.from(amountByte));
             const unique_array = datax.concat(datay).concat(index).concat(token);
             const hash = blake3(Uint8Array.from(arrayToHash));
@@ -93,6 +101,19 @@ export const Deposit = ({ eventList }) => {
             const bytes_sign_unique = getBytesSign(signature_unique);
             const unique = blake3(Uint8Array.from(bytes_sign_unique));
             const root = await contract.getLastRoot();
+
+            let old_signature = bytes_sign_unique;
+            let old_leaf;
+            if (actionIndex > 1) {
+                const oldAmountByte = bigintToArray(old_amount);
+                const oldIndex = numberToArray(actionIndex - 1);
+                const oldArray = datax.concat(datay).concat(oldIndex).concat(token).concat(Array.from(oldAmountByte));
+                const oldHash = blake3(Uint8Array.from(oldArray));
+                const oldSignature = wallet.signingKey.sign(oldHash);
+                old_signature = getBytesSign(oldSignature);
+                old_leaf = blake3(Uint8Array.from(getBytesSign(oldSignature)));
+            }
+
 
             const data = {
                 signature: bytes_sign,
