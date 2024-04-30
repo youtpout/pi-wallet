@@ -13,7 +13,7 @@ import { WalletManager__factory } from "~~/typechain";
 import { gql } from "@apollo/client";
 import client from "~~/utils/apollo";
 
-export const AccountInfo = ({ setEvenList }) => {
+export const AccountInfo = ({ setEvenList, setEvenListLink }) => {
     const [input, setInput] = useState({ amount: 0.01, server: true });
     const [amountEth, setAmountEth] = useState("0");
     const [amountLink, setAmountLink] = useState("0");
@@ -25,6 +25,7 @@ export const AccountInfo = ({ setEvenList }) => {
 
     useEffect(() => {
         getAmount().then();
+        getAmountLink().then();
     }, [account, nbEvent]);
 
     useEffect(() => {
@@ -108,6 +109,76 @@ export const AccountInfo = ({ setEvenList }) => {
 
                 setAmountEth(formatEther(amount));
                 setEvenList(eventList);
+            }
+
+        } catch (error) {
+            console.error("error get amount", error);
+        }
+
+    };
+
+    const getAmountLink = async () => {
+        try {
+            if (account) {
+
+                const wallet = new ethers.Wallet(account);
+                setAddress(wallet.address);
+                const { x: datax, y: datay } = pubKeyFromWallet(wallet);
+                const token = BigInt("0x231d45b53C905c3d6201318156BDC725c9c3B9B1");
+                let amount = BigInt(0);
+                const eventList = [];
+
+                // dumb search for the hackathon
+                const { data } = await client.query({
+                    query: gql`
+                                        query MyQuery {
+                                            transferLinks(first: 500, orderBy: leafIndex) {
+                                            id
+                                            leafIndex
+                                            amountRelayer
+                                            amount
+                                            actionType
+                                            }
+                                        }
+                                    `, fetchPolicy: "no-cache"
+                });
+
+                const transfers = data?.transferLinks;
+                console.log("get transfer link", data?.transferLinks);
+
+                if (transfers?.length > 0) {
+                    // we search only for the last 50 action for the moment 
+                    for (let index = 0; index < 50; index++) {
+                        const num = index + 1;
+                        const actionIndex = numberToArray(num);
+
+                        const unique_array = datax.concat(datay).concat(actionIndex).concat(bigintToArray(token));
+                        const unique_hash = blake3(Uint8Array.from(unique_array));
+                        const signature_unique = wallet.signingKey.sign(unique_hash);
+                        const bytes_sign_unique = getBytesSign(signature_unique);
+                        const unique = blake3(Uint8Array.from(bytes_sign_unique));
+                        const hexUnique = "0x" + toHex(unique).toLowerCase();
+                        const addAction = transfers.find(x => x.id.toLowerCase() === hexUnique);
+                        if (!addAction) {
+                            console.log("break", index);
+                            break;
+                        } else {
+                            eventList.push(addAction);
+                            if (addAction.actionType === 1) {
+                                // deposit
+                                amount = amount + BigInt(addAction.amount) - BigInt(addAction.amountRelayer);
+                            } else {
+                                // withdraw
+                                amount = amount - BigInt(addAction.amount) - BigInt(addAction.amountRelayer);
+                            }
+                            console.log("action", addAction);
+                        }
+                    }
+
+                }
+
+                setAmountLink(formatEther(amount));
+                setEvenListLink(eventList);
             }
 
         } catch (error) {
