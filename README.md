@@ -21,6 +21,16 @@ Sindri : circuit id e1e6361a-dc7a-4c6d-8ebb-ca2c5027d6df, used on /packages/next
 Graph : subgraph /packages/graph [subgraph url](https://api.studio.thegraph.com/query/56264/pi-wallet/0.1)
 used in /packages/nextjs/utils/prove and  /packages/nextjs/components/AccountInfo
 
+## How it works
+
+We generate a proof with the signature of the wallet created for the occasion. This ensures that your private key is never shared, and that it was you who created the proof.
+
+By regenerating your signatures, you can retrieve the various transactions made by your wallet. Since you need your private key to sign, an outside party cannot reproduce your signature and therefore retrieve your transactions.
+
+To generate a new proof, you need the information from the previous one, which helps avoid double spending. That's why you can make as many deposits and withdrawals as you like from the same wallet.
+
+What's more, using signatures rather than secrets means you can use third-party services such as sindri to generate proofs more quickly without sharing your private key.
+
 # 🏗 Scaffold-ETH 2
 
 <h4 align="center">
