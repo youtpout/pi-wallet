@@ -1,0 +1,27 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: WalletManager
+    network: scroll-sepolia
+    source:
+      address: "0xe9e734ab5215bcbff64838878d0caa2483ed679c"
+      abi: WalletManager
+      startBlock: 4159545
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AddAction
+        - OwnershipTransferred
+      abis:
+        - name: WalletManager
+          file: ./abis/WalletManager.json
+      eventHandlers:
+        - event: AddAction(indexed bytes32,indexed bytes32,indexed uint256,(bytes32,bytes32,bytes32,address,address,address,uint256,uint256,bool,bytes,bytes),uint8)
+          handler: handleAddAction
+      file: ./src/wallet-manager.ts

@@ -1,0 +1,46 @@
+type AddAction @entity(immutable: true) {
+  id: Bytes!
+  nullifier: Bytes! # bytes32
+  commitment: Bytes! # bytes32
+  leafIndex: BigInt! # uint256
+  proofData_root: Bytes! # bytes32
+  proofData_token: Bytes! # address
+  proofData_receiver: Bytes! # address
+  proofData_relayer: Bytes! # address
+  proofData_amount: BigInt! # uint256
+  proofData_amountRelayer: BigInt! # uint256
+  proofData_approve: Boolean! # bool
+  proofData_proof: Bytes! # bytes
+  proofData_call: Bytes! # bytes
+  actionType: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+
+type TransferETH @entity(immutable: true) {
+  id: Bytes!
+  nullifier: Bytes! # bytes32
+  commitment: Bytes! # bytes32
+  leafIndex: BigInt! # uint256
+  amount: BigInt! # uint256
+  amountRelayer: BigInt! # uint256
+  actionType: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TransferLink @entity(immutable: true) {
+  id: Bytes!
+  nullifier: Bytes! # bytes32
+  commitment: Bytes! # bytes32
+  leafIndex: BigInt! # uint256
+  amount: BigInt! # uint256
+  amountRelayer: BigInt! # uint256
+  actionType: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

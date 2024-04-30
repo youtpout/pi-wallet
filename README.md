@@ -13,6 +13,7 @@ This project is scaffold with Scaffold Eth2, use noir as proof system, thegraph 
 
 Noir : circuit on /packages/foundry/noir
 Sindri : circuit id e1e6361a-dc7a-4c6d-8ebb-ca2c5027d6df, used on /packages/nextjs/app/api/sindri/route.ts
+Graph : subgraph /packages/graph
 
 # 🏗 Scaffold-ETH 2
 
