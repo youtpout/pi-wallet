@@ -20,7 +20,7 @@ Noir : circuit on /packages/foundry/noir
 
 Sindri : circuit id e1e6361a-dc7a-4c6d-8ebb-ca2c5027d6df, used on /packages/nextjs/app/api/sindri/route.ts
 
-Graph : subgraph /packages/graph [subgraph url](https://api.studio.thegraph.com/query/56264/pi-wallet/0.1)
+Graph : subgraph /packages/graph [subgraph url pi wallet v0.2](https://api.studio.thegraph.com/query/56264/pi-wallet/0.2)
 used in /packages/nextjs/utils/prove and  /packages/nextjs/components/AccountInfo
 
 ## How it works
