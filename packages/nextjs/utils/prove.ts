@@ -5,11 +5,12 @@ import { bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBy
 import { WalletManager__factory } from "~~/typechain";
 import MerkleTree from "merkletreejs";
 import { sha256 } from "@noble/hashes/sha256";
+import { gql } from "@apollo/client";
+import client from "~~/utils/apollo";
 
 export async function generateProofInput(account: any, eventList: [], amountWei: BigInt, token: string,
     root: string, receiver: string, isDeposit: boolean,
     approve: boolean = false, call: any = Array(32).fill(0), relayer = ethers.ZeroAddress, amountRelayer = BigInt(0)): Promise<any> {
-    const provider = new JsonRpcProvider("https://rpc.ankr.com/scroll_sepolia_testnet");
 
     const wallet = new ethers.Wallet(account);
     const { x: datax, y: datay } = pubKeyFromWallet(wallet);
@@ -62,7 +63,7 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
 
         let hexOldLeaf = toHex(oldLeaf);
 
-        var leafs = await getLeaves(provider);
+        var leafs = await getLeaves();
         console.log("leafs", leafs);
         var arrayLeafs = Array(65536).fill(ethers.ZeroHash);
         for (let j = 0; j < leafs.length; j++) {
@@ -122,14 +123,22 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
 
 
 export async function getLeaves(provider: any) {
-    const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
-    const contract = WalletManager__factory.connect(contractAddress, provider);
-    const filter = contract.filters.AddAction();
-    const addAction = await contract.queryFilter(filter, 4159545);
+    const { data } = await client.query({
+        query: gql`
+          query MyQuery {
+            addActions(first: 500, orderBy: leafIndex) {
+                commitment
+                leafIndex
+            }
+          }
+        `, fetchPolicy: "no-cache"
+    });
+
+    console.log("getLeaves", data?.addActions);
     let result = [];
-    if (addAction?.length > 0) {
-        for (let i = 0; i < addAction.length; i++) {
-            const element = addAction[i];
+    if (data?.addActions?.length > 0) {
+        for (let i = 0; i < data.addActions.length; i++) {
+            const element = data.addActions[i];
             result.push(element.args);
         }
     }

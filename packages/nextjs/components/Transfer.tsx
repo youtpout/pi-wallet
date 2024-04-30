@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ZeroHash, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
+import { JsonRpcProvider, Signature, SigningKey, Wallet, ZeroHash, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
 import { AccountContext } from "./Body";
 import circuit from '../../../packages/foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
@@ -24,11 +24,9 @@ export const Transfer = ({ eventList }) => {
     const [noir, setNoir] = useState<Noir | null>(null);
     const [backend, setBackend] = useState<BarretenbergBackend | null>(null);
     const [relayer, setRelayer] = useState({ relayer: "", feeEther: "", feeDai: "" });
-
+    const provider = new JsonRpcProvider("https://rpc.ankr.com/scroll_sepolia_testnet");
     const [message, setMessage] = useState<string>("");
 
-    const signer = useEthersSigner();
-    const provider = useEthersProvider();
     const account = useContext(AccountContext);
 
     // Handles input state
@@ -70,9 +68,9 @@ export const Transfer = ({ eventList }) => {
             setDepositing(true);
             setMessage("Generate Proof");
             const amountWei = parseEther(input.amount.toString());
-
+          
             const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
-            const contract = WalletManager__factory.connect(contractAddress, signer);
+            const contract = WalletManager__factory.connect(contractAddress, provider);
             const root = await contract.getLastRoot();
             const token = zeroAddress;
             const call = Array.from(sha256(new Uint8Array(32)));
