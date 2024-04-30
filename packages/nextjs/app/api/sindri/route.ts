@@ -5,6 +5,8 @@ import { WalletManager__factory } from "~~/typechain";
 import { IWalletManager } from "~~/typechain/WalletManager";
 import { bigintToBytes32 } from "~~/utils/converter";
 
+export const maxDuration = 30; // This function can run for a maximum of 30 seconds
+
 const feeEther = parseEther("0.003");
 // dai get 18 decimals too
 const feeDai = parseEther("5");
