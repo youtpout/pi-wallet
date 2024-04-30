@@ -1,0 +1,396 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_owner", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "AmountTooLow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "commitment", "type": "bytes32" }
+    ],
+    "name": "CommitmentAlreadyUsed",
+    "type": "error"
+  },
+  {
+    "inputs": [{ "internalType": "bytes", "name": "proof", "type": "bytes" }],
+    "name": "InvalidProof",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "root", "type": "bytes32" }
+    ],
+    "name": "InvalidRoot",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "nullifier", "type": "bytes32" }
+    ],
+    "name": "NullifierAlreadyUsed",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  { "inputs": [], "name": "ReentrancyGuardReentrantCall", "type": "error" },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "token", "type": "address" }
+    ],
+    "name": "UnauthorizedToken",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "nullifier",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "commitment",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "leafIndex",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "commitment",
+            "type": "bytes32"
+          },
+          { "internalType": "bytes32", "name": "nullifier", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "root", "type": "bytes32" },
+          { "internalType": "address", "name": "token", "type": "address" },
+          { "internalType": "address", "name": "receiver", "type": "address" },
+          { "internalType": "address", "name": "relayer", "type": "address" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "amountRelayer",
+            "type": "uint256"
+          },
+          { "internalType": "bool", "name": "approve", "type": "bool" },
+          { "internalType": "bytes", "name": "proof", "type": "bytes" },
+          { "internalType": "bytes", "name": "call", "type": "bytes" }
+        ],
+        "indexed": false,
+        "internalType": "struct IWalletManager.ProofData",
+        "name": "proofData",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum WalletManager.ActionType",
+        "name": "actionType",
+        "type": "uint8"
+      }
+    ],
+    "name": "AddAction",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "ROOT_HISTORY_SIZE",
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "commitments",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "currentRootIndex",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_commitment", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_nullifier", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_root", "type": "bytes32" },
+      { "internalType": "address", "name": "_relayer", "type": "address" },
+      {
+        "internalType": "uint256",
+        "name": "_amountRelayer",
+        "type": "uint256"
+      },
+      { "internalType": "bytes", "name": "_proof", "type": "bytes" }
+    ],
+    "name": "deposit",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_commitment", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_nullifier", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_root", "type": "bytes32" },
+      { "internalType": "address", "name": "_token", "type": "address" },
+      { "internalType": "address", "name": "_relayer", "type": "address" },
+      { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "_amountRelayer",
+        "type": "uint256"
+      },
+      { "internalType": "bytes", "name": "_proof", "type": "bytes" }
+    ],
+    "name": "depositErc20",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "filledSubtrees",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLastRoot",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "isAuthorizedToken",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_root", "type": "bytes32" }
+    ],
+    "name": "isKnownRoot",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "levels",
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextIndex",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "nullifiers",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "roots",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_token", "type": "address" },
+      { "internalType": "bool", "name": "_authorized", "type": "bool" }
+    ],
+    "name": "setAuthorizedToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "commitment",
+            "type": "bytes32"
+          },
+          { "internalType": "bytes32", "name": "nullifier", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "root", "type": "bytes32" },
+          { "internalType": "address", "name": "token", "type": "address" },
+          { "internalType": "address", "name": "receiver", "type": "address" },
+          { "internalType": "address", "name": "relayer", "type": "address" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "amountRelayer",
+            "type": "uint256"
+          },
+          { "internalType": "bool", "name": "approve", "type": "bool" },
+          { "internalType": "bytes", "name": "proof", "type": "bytes" },
+          { "internalType": "bytes", "name": "call", "type": "bytes" }
+        ],
+        "internalType": "struct IWalletManager.ProofData",
+        "name": "_proofData",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "commitment",
+            "type": "bytes32"
+          },
+          { "internalType": "bytes32", "name": "nullifier", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "root", "type": "bytes32" },
+          { "internalType": "address", "name": "token", "type": "address" },
+          { "internalType": "address", "name": "receiver", "type": "address" },
+          { "internalType": "address", "name": "relayer", "type": "address" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "amountRelayer",
+            "type": "uint256"
+          },
+          { "internalType": "bool", "name": "approve", "type": "bool" },
+          { "internalType": "bytes", "name": "proof", "type": "bytes" },
+          { "internalType": "bytes", "name": "call", "type": "bytes" }
+        ],
+        "internalType": "struct IWalletManager.ProofData",
+        "name": "_proofDataBack",
+        "type": "tuple"
+      }
+    ],
+    "name": "swap",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "commitment",
+            "type": "bytes32"
+          },
+          { "internalType": "bytes32", "name": "nullifier", "type": "bytes32" },
+          { "internalType": "bytes32", "name": "root", "type": "bytes32" },
+          { "internalType": "address", "name": "token", "type": "address" },
+          { "internalType": "address", "name": "receiver", "type": "address" },
+          { "internalType": "address", "name": "relayer", "type": "address" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "amountRelayer",
+            "type": "uint256"
+          },
+          { "internalType": "bool", "name": "approve", "type": "bool" },
+          { "internalType": "bytes", "name": "proof", "type": "bytes" },
+          { "internalType": "bytes", "name": "call", "type": "bytes" }
+        ],
+        "internalType": "struct IWalletManager.ProofData",
+        "name": "_proofData",
+        "type": "tuple"
+      }
+    ],
+    "name": "transfer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "verifier",
+    "outputs": [
+      {
+        "internalType": "contract UltraVerifier",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

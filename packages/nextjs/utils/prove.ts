@@ -5,9 +5,12 @@ import { bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBy
 import { WalletManager__factory } from "~~/typechain";
 import MerkleTree from "merkletreejs";
 import { sha256 } from "@noble/hashes/sha256";
+import { gql } from "@apollo/client";
+import client from "~~/utils/apollo";
 
-export async function generateProofInput(account: any, eventList: [], amountWei: BigInt, token: string, root: string, receiver: string, isDeposit: boolean, approve: boolean = false, call: any = Array(32).fill(0)): Promise<any> {
-    const provider = new JsonRpcProvider("https://rpc.ankr.com/scroll_sepolia_testnet");
+export async function generateProofInput(account: any, eventList: [], amountWei: BigInt, token: string,
+    root: string, receiver: string, isDeposit: boolean,
+    approve: boolean = false, call: any = Array(32).fill(0), relayer = ethers.ZeroAddress, amountRelayer = BigInt(0)): Promise<any> {
 
     const wallet = new ethers.Wallet(account);
     const { x: datax, y: datay } = pubKeyFromWallet(wallet);
@@ -18,19 +21,18 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
     if (eventList?.length > 0) {
         actionIndex = actionIndex + eventList.length;
         for (let i = 0; i < eventList.length; i++) {
-            const element = eventList[i].args;
-            const proofData = element.proofData;
-            if (element.actionType === BigInt(1)) {
+            const element = eventList[i];
+            if (element.actionType === 1) {
                 // deposit
-                old_amount = old_amount + proofData.amount - proofData.amountRelayer;
+                old_amount = old_amount + BigInt(element.amount) - BigInt(element.amountRelayer);
             } else {
                 //withdraw
-                old_amount = old_amount - proofData.amount - proofData.amountRelayer;
+                old_amount = old_amount - BigInt(element.amount) - BigInt(element.amountRelayer);
             }
         }
     }
 
-    let newAmount = isDeposit ? amountWei + old_amount : old_amount - amountWei;
+    let newAmount = isDeposit ? amountWei + old_amount - amountRelayer : old_amount - amountWei - amountRelayer;
     const amountByte = bigintToArray(newAmount);
     let index = numberToArray(actionIndex);
     const arrayToHash = datax.concat(datay).concat(index).concat(tokenArr).concat(Array.from(amountByte));
@@ -60,11 +62,11 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
 
         let hexOldLeaf = toHex(oldLeaf);
 
-        var leafs = await getLeaves(provider);
+        var leafs = await getLeaves();
         console.log("leafs", leafs);
         var arrayLeafs = Array(65536).fill(ethers.ZeroHash);
         for (let j = 0; j < leafs.length; j++) {
-            const element = leafs[j].proofData;
+            const element = leafs[j];
             console.log("element", element);
             arrayLeafs[j] = element.commitment;
         }
@@ -106,9 +108,9 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
         new_leaf: Array.from(new_leaf),
         merkle_root: Array.from(getBytes(root)),
         amount,
-        amount_relayer: 0,
+        amount_relayer: bigintToBytes32(amountRelayer),
         receiver: receiver,
-        relayer: ethers.ZeroAddress,
+        relayer: relayer,
         is_deposit: isDeposit ? [1] : [0],
         approve: approve ? [1] : [0],
         // call is a sha256 hash of calldata
@@ -119,17 +121,19 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
 }
 
 
-export async function getLeaves(provider: any) {
-    const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
-    const contract = WalletManager__factory.connect(contractAddress, provider);
-    const filter = contract.filters.AddAction();
-    const addAction = await contract.queryFilter(filter, 4159545);
-    let result = [];
-    if (addAction?.length > 0) {
-        for (let i = 0; i < addAction.length; i++) {
-            const element = addAction[i];
-            result.push(element.args);
-        }
-    }
-    return result;
+export async function getLeaves() {
+    const { data } = await client.query({
+        query: gql`
+          query MyQuery {
+            addActions(first: 500, orderBy: leafIndex) {
+                commitment
+                leafIndex
+            }
+          }
+        `, fetchPolicy: "no-cache"
+    });
+
+    console.log("getLeaves", data?.addActions);
+
+    return data?.addActions || [];
 };

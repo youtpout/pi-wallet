@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ZeroHash, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
+import { JsonRpcProvider, Signature, SigningKey, Wallet, ZeroHash, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
 import { AccountContext } from "./Body";
 import circuit from '../../../packages/foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
@@ -24,11 +24,9 @@ export const Transfer = ({ eventList }) => {
     const [noir, setNoir] = useState<Noir | null>(null);
     const [backend, setBackend] = useState<BarretenbergBackend | null>(null);
     const [relayer, setRelayer] = useState({ relayer: "", feeEther: "", feeDai: "" });
-
+    const provider = new JsonRpcProvider("https://rpc.ankr.com/scroll_sepolia_testnet");
     const [message, setMessage] = useState<string>("");
 
-    const signer = useEthersSigner();
-    const provider = useEthersProvider();
     const account = useContext(AccountContext);
 
     // Handles input state
@@ -44,7 +42,7 @@ export const Transfer = ({ eventList }) => {
 
     useEffect(() => {
         initNoir();
-        getRelayer();
+        getRelayer().then(r => setRelayer(r));
     }, []);
 
     const initNoir = async () => {
@@ -59,8 +57,8 @@ export const Transfer = ({ eventList }) => {
 
     const getRelayer = async () => {
         const call = await fetch("/api/sindri");
-        const result = await call.json();
-        console.log("relayer", result);
+        const result = await call.json();        
+        return result;       
     }
 
 
@@ -70,17 +68,25 @@ export const Transfer = ({ eventList }) => {
             setDepositing(true);
             setMessage("Generate Proof");
             const amountWei = parseEther(input.amount.toString());
-
+          
             const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
-            const contract = WalletManager__factory.connect(contractAddress, signer);
+            const contract = WalletManager__factory.connect(contractAddress, provider);
             const root = await contract.getLastRoot();
             const token = zeroAddress;
             const call = Array.from(sha256(new Uint8Array(32)));
-            const data = await generateProofInput(account, eventList, amountWei, token, root, input.receiver, false, false, call);
+            const addrRelayer = relayer.relayer;
+            console.log("relayer", relayer);
+            console.log("addr", addrRelayer);
+            const data = await generateProofInput(account, eventList, amountWei, token, root, input.receiver, false, false, call, addrRelayer, BigInt(relayer.feeEther));
 
             const callData = {
-                useRelayer: false,
-                data
+                useRelayer: true,
+                data,
+                contractData: {
+                    amount: toHex(amountWei),
+                    call: zeroHash,
+                    root: root
+                }
             }
 
             console.log("input", JSON.stringify(data));
@@ -96,28 +102,7 @@ export const Transfer = ({ eventList }) => {
             });
             const resultProof = await generateProof.json();
             if (resultProof?.proof?.proof) {
-                const proof = "0x" + resultProof.proof.proof;
-                console.log("proof", proof);
-                console.log("root", root);
-
-                setMessage("Create transaction");
-                const proofStruct: IWalletManager.ProofDataStruct = {
-                    amount: amountWei,
-                    amountRelayer: zeroHash,
-                    approve: false,
-                    call: zeroHash,
-                    commitment: toHex(data.new_leaf),
-                    nullifier: toHex(data.unique),
-                    root: root,
-                    relayer: zeroAddress,
-                    proof: proof,
-                    receiver: input.receiver,
-                    token: zeroAddress
-                };
-                console.log("proofstruct", proofStruct);
-                const tx = await contract.transfer(proofStruct);
                 setMessage("Transaction sent");
-                console.log("tx", tx.hash);
             }
             else {
                 throw resultProof;

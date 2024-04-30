@@ -1,0 +1,8 @@
+{
+  "scroll-sepolia": {
+    "WalletManager": {
+      "address": "0xe9e734ab5215bcbff64838878d0caa2483ed679c",
+      "startBlock": 4159545
+    }
+  }
+}
