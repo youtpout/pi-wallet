@@ -10,6 +10,9 @@ export const maxDuration = 30; // This function can run for a maximum of 30 seco
 const feeEther = parseEther("0.003");
 // dai get 18 decimals too
 const feeDai = parseEther("5");
+const feeLink = parseEther("0.1");
+
+const addressLink = "0x231d45b53C905c3d6201318156BDC725c9c3B9B1";
 
 export async function GET(
     req: Request
@@ -17,7 +20,7 @@ export async function GET(
     const relayerKey = process.env.RELAYER_PRIVATE_KEY!;
     const wallet = new ethers.Wallet(relayerKey);
 
-    return Response.json({ relayer: wallet.address, feeEther: feeEther.toString(), feeDai: feeDai.toString() });
+    return Response.json({ relayer: wallet.address, feeEther: feeEther.toString(), feeDai: feeDai.toString(), feeLink: feeLink.toString() });
 }
 
 export async function POST(
@@ -41,7 +44,7 @@ export async function POST(
         const data = json.data;
         const proofStruct: IWalletManager.ProofDataStruct = {
             amount: contractData.amount,
-            amountRelayer: bigintToBytes32(feeEther),
+            amountRelayer: data.token == zeroAddress ? bigintToBytes32(feeEther) : bigintToBytes32(feeLink),
             approve: false,
             call: contractData.call,
             commitment: toHex(data.new_leaf),
@@ -50,7 +53,7 @@ export async function POST(
             relayer: signer.address,
             proof: "0x" + proof,
             receiver: data.receiver,
-            token: zeroAddress
+            token: data.token
         };
         console.log("proofstruct", proofStruct);
         const tx = await contract.transfer(proofStruct);
