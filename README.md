@@ -14,7 +14,7 @@ Will support multiple Erc20 token, contract call with data to bridge/swap/lendin
 
 [Website demo](https://pi-wallet-rouge.vercel.app/)
 
-[Contract on scrollscan](https://sepolia.scrollscan.com/address/0xe9e734ab5215bcbff64838878d0caa2483ed679c#code)
+[Contract on scrollscan 0xe9e734ab5215bcbff64838878d0caa2483ed679c](https://sepolia.scrollscan.com/address/0xe9e734ab5215bcbff64838878d0caa2483ed679c#code)
 
 Noir : circuit on /packages/foundry/noir
 
