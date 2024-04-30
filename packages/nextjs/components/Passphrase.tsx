@@ -27,6 +27,8 @@ export const Passphrase = ({ onClose }) => {
             secureLocalStorage.setItem("wallet", wallet.privateKey);
         }
         document?.getElementById('pass-modal').close();
+        // reload page to setaccount
+        location.reload();
         onClose();
     }
 
