@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 
 const client = new ApolloClient({
-    uri: "https://api.studio.thegraph.com/query/56264/pi-wallet/0.1",
+    uri: "https://api.studio.thegraph.com/query/56264/pi-wallet/0.2",
     cache: new InMemoryCache(),
 });
 

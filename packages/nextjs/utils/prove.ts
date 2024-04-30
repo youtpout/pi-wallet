@@ -21,14 +21,13 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
     if (eventList?.length > 0) {
         actionIndex = actionIndex + eventList.length;
         for (let i = 0; i < eventList.length; i++) {
-            const element = eventList[i].args;
-            const proofData = element.proofData;
-            if (element.actionType === BigInt(1)) {
+            const element = eventList[i];
+            if (element.actionType === 1) {
                 // deposit
-                old_amount = old_amount + proofData.amount - proofData.amountRelayer;
+                old_amount = old_amount + BigInt(element.amount) - BigInt(element.amountRelayer);
             } else {
                 //withdraw
-                old_amount = old_amount - proofData.amount - proofData.amountRelayer;
+                old_amount = old_amount - BigInt(element.amount) - BigInt(element.amountRelayer);
             }
         }
     }
@@ -67,7 +66,7 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
         console.log("leafs", leafs);
         var arrayLeafs = Array(65536).fill(ethers.ZeroHash);
         for (let j = 0; j < leafs.length; j++) {
-            const element = leafs[j].proofData;
+            const element = leafs[j];
             console.log("element", element);
             arrayLeafs[j] = element.commitment;
         }
@@ -122,7 +121,7 @@ export async function generateProofInput(account: any, eventList: [], amountWei:
 }
 
 
-export async function getLeaves(provider: any) {
+export async function getLeaves() {
     const { data } = await client.query({
         query: gql`
           query MyQuery {
@@ -135,12 +134,6 @@ export async function getLeaves(provider: any) {
     });
 
     console.log("getLeaves", data?.addActions);
-    let result = [];
-    if (data?.addActions?.length > 0) {
-        for (let i = 0; i < data.addActions.length; i++) {
-            const element = data.addActions[i];
-            result.push(element.args);
-        }
-    }
-    return result;
+
+    return data?.addActions || [];
 };

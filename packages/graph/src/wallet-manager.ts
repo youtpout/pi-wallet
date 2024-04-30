@@ -29,7 +29,7 @@ export function handleAddAction(event: AddActionEvent): void {
     createTransferLink(event)
   }
 
-  if (event.params.proofData.token == Address.empty()) {
+  if (event.params.proofData.token == Address.zero()) {
     // case transfer eth
     createTransferEth(event)
   }
