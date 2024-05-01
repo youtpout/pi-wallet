@@ -67,7 +67,7 @@ export const Bridge = ({ eventList }) => {
         ]);
         const amountWei = parseEther(input.amount.toString());
         let iface = new ethers.Interface(ABI);
-        return iface.encodeFunctionData("withdrawETH", [input.receiver, amountWei, 10000000]);
+        return iface.encodeFunctionData("withdrawETH", [input.receiver, amountWei, 200_000]);
     };
 
 
@@ -86,7 +86,7 @@ export const Bridge = ({ eventList }) => {
             const call = Array.from(sha256(hexToBytes(calldata)));
             const addrRelayer = relayer.relayer;
             // scroll bridge contract on sepolia
-            const receiverBridge = "0x91e8ADDFe1358aCa5314c644312d38237fC1101C";
+            const receiverBridge = "0x9aD3c5617eCAa556d6E166787A97081907171230";
             console.log("relayer", relayer);
             console.log("addr", addrRelayer);
             const data = await generateProofInput(account, eventList, amountWei, token, root, receiverBridge, false, false, call, addrRelayer, BigInt(relayer.feeEther));
