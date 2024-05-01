@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useEthersSigner, useEthersProvider } from '../utils/useEthers';
-import { Signature, SigningKey, Wallet, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
+import { Contract, JsonRpcProvider, Signature, SigningKey, Wallet, ZeroHash, ethers, getBytes, parseEther, toBeArray, zeroPadBytes } from "ethers";
 import { AccountContext } from "./Body";
 import circuit from '../../foundry/noir/target/circuits.json';
 import { blake3 } from '@noble/hashes/blake3';
@@ -11,27 +11,23 @@ import { BarretenbergBackend, CompiledCircuit } from '@noir-lang/backend_barrete
 import { Noir } from '@noir-lang/noir_js';
 import { amountToBytes, bigintToArray, bigintToBytes32, getBytesSign, numberToArray, numberToBytes32, pubKeyFromWallet } from "~~/utils/converter";
 import { WalletManager__factory } from "~~/typechain";
-import { formatEther, toHex, zeroAddress } from "viem";
+import { hexToBytes, parseAbi, toHex, zeroAddress, zeroHash } from "viem";
 import { MerkleTree } from 'merkletreejs';
 import { Exception } from "sass";
 import { bytesToBigInt } from "viem";
 import { generateProofInput } from "~~/utils/prove";
-import { format } from "path";
+import { IWalletManager } from "~~/typechain/WalletManager";
 
-export const DepositLink = ({ eventList }) => {
-    const [input, setInput] = useState({ amount: 1, server: true });
+export const Bridge = ({ eventList }) => {
+    const [input, setInput] = useState({ amount: 0.01, server: true, receiver: "" });
     const [depositing, setDepositing] = useState<boolean>(false);
     const [noir, setNoir] = useState<Noir | null>(null);
     const [backend, setBackend] = useState<BarretenbergBackend | null>(null);
     const [relayer, setRelayer] = useState({ relayer: "", feeEther: "", feeDai: "" });
-
+    const provider = new JsonRpcProvider("https://rpc.ankr.com/scroll_sepolia_testnet");
     const [message, setMessage] = useState<string>("");
 
-    const signer = useEthersSigner();
-    const provider = useEthersProvider();
     const account = useContext(AccountContext);
-    const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
-    const addressLink = "0x231d45b53C905c3d6201318156BDC725c9c3B9B1";
 
     // Handles input state
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -44,10 +40,9 @@ export const DepositLink = ({ eventList }) => {
     };
 
 
-
     useEffect(() => {
         initNoir();
-        getRelayer();
+        getRelayer().then(r => setRelayer(r));
     }, []);
 
     const initNoir = async () => {
@@ -63,29 +58,47 @@ export const DepositLink = ({ eventList }) => {
     const getRelayer = async () => {
         const call = await fetch("/api/sindri");
         const result = await call.json();
-        console.log("relayer", result);
+        return result;
     }
 
-    const approve = async () => {
-        const abi = [{ "constant": false, "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }];
-        const erc20 = new ethers.Contract(addressLink, abi, signer);
-        await erc20.approve(contractAddress, parseEther("1000"));
+    const getCallData = () => {
+        const ABI = parseAbi([
+            "function withdrawETH(address to,uint256 amount,uint256 gasLimit) external payable",
+        ]);
+        const amountWei = parseEther(input.amount.toString());
+        let iface = new ethers.Interface(ABI);
+        return iface.encodeFunctionData("withdrawETH", [input.receiver, amountWei, 10000000]);
     };
 
-    const depositEth = async () => {
+
+
+    const transferEth = async () => {
         try {
             setDepositing(true);
             setMessage("Generate Proof");
             const amountWei = parseEther(input.amount.toString());
 
-            const contract = WalletManager__factory.connect(contractAddress, signer);
+            const contractAddress = "0xE9e734AB5215BcBff64838878d0cAA2483ED679c";
+            const contract = WalletManager__factory.connect(contractAddress, provider);
             const root = await contract.getLastRoot();
-
-            const data = await generateProofInput(account, eventList, amountWei, addressLink, root, contractAddress, true);
+            const token = zeroAddress;
+            const calldata = getCallData();
+            const call = Array.from(sha256(hexToBytes(calldata)));
+            const addrRelayer = relayer.relayer;
+            // scroll bridge contract on sepolia
+            const receiverBridge = "0x91e8ADDFe1358aCa5314c644312d38237fC1101C";
+            console.log("relayer", relayer);
+            console.log("addr", addrRelayer);
+            const data = await generateProofInput(account, eventList, amountWei, token, root, receiverBridge, false, false, call, addrRelayer, BigInt(relayer.feeEther));
 
             const callData = {
-                useRelayer: false,
-                data
+                useRelayer: true,
+                data,
+                contractData: {
+                    amount: toHex(amountWei),
+                    call: calldata,
+                    root: root
+                }
             }
 
             console.log("input", JSON.stringify(data));
@@ -101,14 +114,7 @@ export const DepositLink = ({ eventList }) => {
             });
             const resultProof = await generateProof.json();
             if (resultProof?.proof?.proof) {
-                const proof = "0x" + resultProof.proof.proof;
-                console.log("proof", proof);
-                console.log("root", root);
-
-                setMessage("Create transaction");
-                const tx = await contract.depositErc20(toHex(data.new_leaf), toHex(data.unique), root, addressLink, ethers.ZeroAddress, amountWei, ethers.ZeroHash, proof);
                 setMessage("Transaction sent");
-                console.log("tx", tx.hash);
             }
             else {
                 throw resultProof;
@@ -130,20 +136,19 @@ export const DepositLink = ({ eventList }) => {
 
     return (
         <div className="tab-content">
-            <div className='tab-form '>
-                <span>Amount (Link)</span>
+            <div className='tab-form'>
+                <span>Amount (ETH) + 0.003 fee</span>
                 <input className='input' name="amount" type={'number'} onChange={handleChange} value={input.amount} />
-                {!signer?.address && <p className="text-sm">You need a connected wallet for deposit</p>}
+                <p className="text-sm">The bridge apply fee based on ethereum sepolia congestion</p>
             </div>
-            {/* <div className='tab-check'>
-                <input name="server" id='server' type={'checkbox'} onChange={handleCheck} checked={input.server} />
-                <label htmlFor="server" >Sindri's server proof</label>
-            </div> */}
-            <button className='btn btn-primary mb-3' onClick={approve}>Approve</button>
+            <div className='tab-form'>
+                <span>Receiver</span>
+                <input className='input' name="receiver" type={'text'} onChange={handleChange} value={input.receiver} />
+            </div>
             {depositing ?
                 <button className='btn btn-secondary'><span className="loading loading-spinner loading-xs"></span>{message}</button>
                 :
-                <button className='btn btn-secondary' onClick={depositEth}>Deposit</button>}
+                <button className='btn btn-secondary' onClick={transferEth}>Bridge</button>}
 
         </div>
     );

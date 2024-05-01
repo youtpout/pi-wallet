@@ -13,6 +13,7 @@ import { AccountInfo } from "~~/components/AccountInfo";
 import { Transfer } from "~~/components/Transfer";
 import { DepositLink } from "~~/components/DepositLink";
 import { TransferLink } from "~~/components/TransferLink";
+import { Bridge } from "~~/components/Bridge";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -31,6 +32,7 @@ const Home: NextPage = () => {
               <span className={tabName === 'depositLink' ? 'active' : ''} onClick={() => setTabName('depositLink')}>Deposit Link</span>
               <span className={tabName === 'transfer' ? 'active' : ''} onClick={() => setTabName('transfer')}>Transfer</span>
               <span className={tabName === 'transferLink' ? 'active' : ''} onClick={() => setTabName('transferLink')}>Transfer Link</span>
+              <span className={tabName === 'bridge' ? 'active' : ''} onClick={() => setTabName('bridge')}>Bridge</span>
               {/* <span className={tabName === 'swap' ? 'active' : ''} onClick={() => setTabName('swap')}>Swap</span> */}
             </div>
             <div className='tab-container'>
@@ -38,6 +40,7 @@ const Home: NextPage = () => {
               {tabName === "transfer" && <Transfer eventList={eventList}></Transfer>}
               {tabName === "depositLink" && <DepositLink eventList={eventListLink}></DepositLink>}
               {tabName === "transferLink" && <TransferLink eventList={eventListLink}></TransferLink>}
+              {tabName === "bridge" && <Bridge eventList={eventList}></Bridge>}
             </div>
           </div>
         </div>

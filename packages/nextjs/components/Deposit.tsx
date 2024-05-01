@@ -128,6 +128,7 @@ export const Deposit = ({ eventList }) => {
             <div className='tab-form'>
                 <span>Amount (ETH)</span>
                 <input className='input' name="amount" type={'number'} onChange={handleChange} value={input.amount} />
+                {!signer?.address && <p className="text-sm">You need a connected wallet for deposit</p>}
             </div>
             {/* <div className='tab-check'>
                 <input name="server" id='server' type={'checkbox'} onChange={handleCheck} checked={input.server} />
