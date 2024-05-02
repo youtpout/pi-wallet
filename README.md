@@ -6,7 +6,8 @@ Ultimately, users will be able to perform the same actions as a conventional wal
 
 This project is scaffold with Scaffold Eth2, use noir as proof system, thegraph to index data, Sindri to generate proof faster, and the solidity smartcontract are deployed on the incredible Scroll blockchain.
 
-Actually support ETH and Link on Scroll Sepolia, you can deposit and withdraw tokens
+Actually support ETH and Link on Scroll Sepolia, you can deposit and withdraw tokens.
+Bridge from Scroll Sepolia to Ethereum Sepolia (You must claim your withdrawal on the claim page after approximately 20 minutes).
 
 Will support multiple Erc20 token, contract call with data to bridge/swap/lending everything possible on blockchain
 

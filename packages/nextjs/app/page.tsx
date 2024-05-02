@@ -14,6 +14,8 @@ import { Transfer } from "~~/components/Transfer";
 import { DepositLink } from "~~/components/DepositLink";
 import { TransferLink } from "~~/components/TransferLink";
 import { Bridge } from "~~/components/Bridge";
+import { scrollSepolia } from '@wagmi/core/chains';
+import { useChainId, useSwitchChain } from 'wagmi';
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -21,10 +23,16 @@ const Home: NextPage = () => {
   const [eventList, setEvenList] = useState();
   const [eventListLink, setEvenListLink] = useState();
 
+  const chainId = useChainId();
+  const { chains, switchChain } = useSwitchChain();
+
   return (
     <>
       <div className="flex flex-col flex-grow p-10">
         <AccountInfo setEvenList={setEvenList} setEvenListLink={setEvenListLink}></AccountInfo>
+        {chainId != scrollSepolia.id && <div className="flex flex-row justify-start mt-5">
+          <button className="btn btn-primary" onClick={() => switchChain({ chainId: scrollSepolia.id })}>Switch to Scroll Sepolia to deposit</button>
+        </div>}
         <div className="flex items-center justify-center  pt-10">
           <div className='tab-block'>
             <div className='tab-header'>
@@ -32,7 +40,7 @@ const Home: NextPage = () => {
               <span className={tabName === 'depositLink' ? 'active' : ''} onClick={() => setTabName('depositLink')}>Deposit Link</span>
               <span className={tabName === 'transfer' ? 'active' : ''} onClick={() => setTabName('transfer')}>Transfer</span>
               <span className={tabName === 'transferLink' ? 'active' : ''} onClick={() => setTabName('transferLink')}>Transfer Link</span>
-              {/* <span className={tabName === 'bridge' ? 'active' : ''} onClick={() => setTabName('bridge')}>Bridge</span> */}
+              <span className={tabName === 'bridge' ? 'active' : ''} onClick={() => setTabName('bridge')}>Bridge</span>
               {/* <span className={tabName === 'swap' ? 'active' : ''} onClick={() => setTabName('swap')}>Swap</span> */}
             </div>
             <div className='tab-container'>

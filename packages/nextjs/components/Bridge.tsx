@@ -86,7 +86,7 @@ export const Bridge = ({ eventList }) => {
             const call = Array.from(sha256(hexToBytes(calldata)));
             const addrRelayer = relayer.relayer;
             // scroll bridge contract on sepolia
-            const receiverBridge = "0x9aD3c5617eCAa556d6E166787A97081907171230";
+            const receiverBridge = "0x91e8ADDFe1358aCa5314c644312d38237fC1101C";
             console.log("relayer", relayer);
             console.log("addr", addrRelayer);
             const data = await generateProofInput(account, eventList, amountWei, token, root, receiverBridge, false, false, call, addrRelayer, BigInt(relayer.feeEther));
@@ -140,6 +140,7 @@ export const Bridge = ({ eventList }) => {
                 <span>Amount (ETH) + 0.003 fee</span>
                 <input className='input' name="amount" type={'number'} onChange={handleChange} value={input.amount} />
                 <p className="text-sm">The bridge apply fee based on ethereum sepolia congestion</p>
+                <p className="text-sm">(You must claim your withdrawal on the claim page after 20 min - 1 hour)</p>
             </div>
             <div className='tab-form'>
                 <span>Receiver</span>
