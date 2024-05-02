@@ -13,6 +13,8 @@ import { useEthersSigner } from "~~/utils/useEthers";
 
 const Claim: NextPage = () => {
 
+  const [depositing, setDepositing] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
   const chainId = useChainId();
   const { chains, switchChain } = useSwitchChain();
   const [claimList, setClaimList] = useState([]);
@@ -49,25 +51,44 @@ const Claim: NextPage = () => {
   }
 
   const claim = async (x: any) => {
-    const ABI = parseAbi([
-      "struct L2MessageProof {uint256 batchIndex;bytes merkleProof;}",
-      "function relayMessageWithProof(address from,address to,uint256 value,uint256 nonce,bytes memory message,L2MessageProof memory proof) external",
-    ]);
+    try {
+      setDepositing(true);
+      setMessage("Creating Transaction");
+      const ABI = parseAbi([
+        "struct L2MessageProof {uint256 batchIndex;bytes merkleProof;}",
+        "function relayMessageWithProof(address from,address to,uint256 value,uint256 nonce,bytes memory message,L2MessageProof memory proof) external",
+      ]);
 
-    // L1 gateway
-    const contractAddress = "0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A";
-    const contract = new ethers.Contract(contractAddress, ABI, signer);
-    const data = x.claim_info;
-    const tx = await contract.relayMessageWithProof(data.from, data.to, data.value, data.nonce, data.message, {
-      batchIndex: data.proof.batch_index,
-      merkleProof: data.proof.merkle_proof
-    });
-    console.log("tx sent", tx);
+      // L1 gateway
+      const contractAddress = "0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A";
+      const contract = new ethers.Contract(contractAddress, ABI, signer);
+      const data = x.claim_info;
+      const tx = await contract.relayMessageWithProof(data.from, data.to, data.value, data.nonce, data.message, {
+        batchIndex: data.proof.batch_index,
+        merkleProof: data.proof.merkle_proof
+      });
+      setMessage("Transaction sent");
+      console.log("tx sent", tx);
+    } catch (error) {
+      setMessage("Error check console");
+      console.error("error send tx", error);
+    }
+    finally {
+      await delay(2000);
+      setDepositing(false);
+    }
   };
+
+
+  const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
   const listItems = claimList.map((x) =>
     <div className="flex flex-row mt-5 items-center flex-wrap bg-blue-300 p-2" key={x?.hash}>
-      <button className="btn" onClick={() => claim(x)}>Claim </button>
+      {depositing ?
+        <button className='btn btn-secondary'><span className="loading loading-spinner loading-xs"></span>{message}</button>
+        :
+        <button className="btn" onClick={() => claim(x)}>Claim </button>
+      }
       <span className="ml-5" style={{ width: "100px" }}>{formatEther(x.token_amounts[0])} ETH</span>
       <span className="ml-5">To : {decodeMessage(x)}</span>
     </div>
