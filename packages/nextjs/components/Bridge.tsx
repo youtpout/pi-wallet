@@ -139,8 +139,8 @@ export const Bridge = ({ eventList }) => {
             <div className='tab-form'>
                 <span>Amount (ETH) + 0.003 fee</span>
                 <input className='input' name="amount" type={'number'} onChange={handleChange} value={input.amount} />
-                <p className="text-sm">The bridge apply fee based on ethereum sepolia congestion</p>
-                <p className="text-sm">(You must claim your withdrawal on the claim page after 20 min - 1 hour)</p>
+                <label className="text-sm">The bridge apply fee based on ethereum sepolia congestion</label>
+                <label className="text-sm">(You must claim your withdrawal on the claim page after 20 min - 1 hour)</label>
             </div>
             <div className='tab-form'>
                 <span>Receiver</span>
