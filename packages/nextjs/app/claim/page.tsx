@@ -84,7 +84,7 @@ const Claim: NextPage = () => {
           {claimList?.length ? listItems : <p>Nothing to claim</p>}
 
           <p className="text-neutral">
-            If you have claim, refresh the page a few seconds later to reload the waiting list.
+            If you have claimed, refresh the page a few seconds later to reload the waiting list.
           </p>
         </div>
       </div>
